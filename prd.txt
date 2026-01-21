@@ -1,0 +1,404 @@
+# VelvetHold - Product Requirements Document
+
+## Product Overview
+**Name:** VelvetHold (Numerology: 44 → 8 - Builder/Business/Systems Energy)
+
+**Tagline:** Premium date reservation platform with deposit-based commitment
+
+**Platform Strategy:** Web-first (avoids app store rejection risk), native apps later after validation
+
+**Target Audience:** Women first (invitees), then expand to all genders
+
+## Core Problem
+Dating apps suffer from no-shows, low-effort requests, and safety concerns. VelvetHold solves this by requiring a refundable deposit for date requests, creating accountability and filtering for serious matches.
+
+## Key Differentiators
+- **Deposit-based requests** (not "paying for dates" - framed as reservation/no-show protection)
+- **Approval gates** - invitees control who they meet
+- **Availability visibility** - optional schedule sharing for paid requesters
+- **Safety-first** - verified profiles, public meetup requirements, clear boundaries
+
+## MVP Feature Set (v1)
+
+### Core Flow: Request → Deposit → Approve/Decline
+
+#### 1. Invitee Profile Setup
+**Required:**
+- Verified selfie + ID check (liveness detection)
+- Age (18+ gating, DOB required)
+- City/area (not exact address)
+- Date preferences (coffee/dinner/activity/museum)
+- About me / what I'm looking for
+- Dealbreakers/boundaries (e.g., "public places only", "no late-night first meets")
+- Screening prompts (3-5 questions):
+  - "What's your idea of a good first date?"
+  - "What are you looking for?"
+  - "Why me?"
+- Deposit amount + explicit purpose ("reservation hold", "no-show protection")
+- Cancellation/no-show policy (clear, simple)
+
+**Optional:**
+- Availability windows (time blocks, not exact calendar)
+- Request cap per week (spam prevention)
+- Visibility settings (who can see availability)
+
+#### 2. Requester Profile Setup
+**Required:**
+- Verified selfie + ID check (liveness detection)
+- Age (18+ gating, DOB required)
+- Basic bio + intent (dating/relationship/friends)
+- Answers to screening prompts
+- Preferred date type + general area
+- "Why this date?" message
+
+**Optional:**
+- Employment/education (careful with discrimination)
+
+#### 3. Request Flow
+1. Requester browses invitee profiles
+2. Selects availability window (if shown)
+3. Answers screening questions
+4. Writes intro message
+5. Pays deposit (held in escrow)
+6. Request sent to invitee
+
+#### 4. Approval Flow
+1. Invitee sees request + profile + answers
+2. Approve or Decline
+3. **If Declined:** deposit refunded immediately
+4. **If Approved:** 
+   - Chat unlocks
+   - Date details finalized
+   - Deposit held until date time
+   - Deposit handling per policy (refunded if date happens, or per no-show rules)
+
+### Availability System (Privacy-Preserving)
+
+**Visibility Levels:**
+- Public (not recommended)
+- Verified users only
+- Only users who paid deposit
+- Only users I've approved (most private)
+
+**Display Format:**
+- Availability windows, NOT real calendar
+- Examples: "Tue-Thu: 6-9pm", "Sat: 11am-3pm", "Next 7 days: 4 open slots"
+- Fuzzing options: show "Evening" instead of "7:00pm"
+- Buffer zones: 15-60 min buffer around slots
+
+**What NOT to show:**
+- Exact address
+- Live location
+- Google Calendar integration
+- Precise "busy" blocks that reveal patterns
+
+**Data Model:**
+- `availability_rules` (weekly recurring rules)
+- `availability_slots` (generated for next 14-30 days)
+- `date_requests` (slot_id, requester_id, deposit_status, approval_status)
+- `visibility_level` (enum)
+
+### Payment System (Critical for Compliance)
+
+**Framing:** Refundable deposit / reservation hold (NOT "paying for access to a person")
+
+**Deposit Flow:**
+1. Held in escrow when request submitted
+2. Refunded if declined
+3. If approved: held until date time
+4. Released per policy:
+   - Both confirm date happened → refunded
+   - No-show → per cancellation policy
+   - Dispute → manual review
+
+**Safer Payment Structures:**
+- Refundable deposit escrow
+- Venue credit conversion option
+- Mutual date wallet (tickets/food/transport only)
+- Charity lockbox option (if no-show, goes to charity)
+
+**Risk Mitigation:**
+- Chargeback handling
+- Fraud detection
+- Harassment/extortion prevention
+- Clear dispute resolution
+- Identity verification requirements
+
+### Safety Features (Non-Negotiable)
+
+**For Both Sides:**
+- 18+ gating + DOB verification
+- Selfie verification (liveness)
+- Optional ID verification
+- "Public meetups only" baseline (first few dates)
+- Report/block system
+- Moderation tools
+- Clear boundaries/dealbreakers
+
+**Privacy:**
+- No exact addresses until approved
+- No live location sharing
+- Fuzzy time windows
+- Request caps to prevent spam
+
+## Future Features (Post-MVP)
+
+### Phase 2: Enhanced Matching
+- "Priority requests" (limited slots, NOT "bidding" - too risky for stores)
+- Multiple request handling (invitee sees all, picks best fit)
+- Profile verification badges
+- Date type filters
+
+### Phase 3: Experience Improvements
+- In-app chat (post-approval)
+- Date confirmation/check-in
+- Feedback/rating system (mutual, post-date)
+- Venue suggestions
+- Calendar integration (private)
+
+### Phase 4: Native Apps
+- iOS app (after web validation)
+- Android app (after web validation)
+- Push notifications
+- Location-based discovery
+
+## Design System
+
+### Brand Identity
+**Numerology:** 44 → 8 (Builder/Business/Systems)
+**Vibe:** Luxury + Boundaries + Power + Safety
+
+### Color Palette
+
+**Core Colors:**
+- Velvet Plum (Primary): `#3B1E4A`
+- Royal Velvet (Primary Hover): `#5A2D82`
+- Blush Rose (Accent): `#E7B7D2`
+- Gilded Gold (Secondary/Highlight): `#D7B46A`
+
+**Neutrals:**
+- Porcelain (Light BG): `#FAF7FB`
+- Ink (Dark BG): `#0B0A10`
+- Soft Lilac (Muted/Surfaces): `#F0EAF3` (light) / `#171223` (dark)
+- Borders: `#E6DDEA` (light) / `#2A2238` (dark)
+- Muted Text: `#6B647A` (light) / `#B9AFC2` (dark)
+
+**Gradient (Hero/Headers):**
+```css
+linear-gradient(135deg, #3B1E4A, #5A2D82, #E7B7D2)
+```
+
+### Usage Rules
+- **Primary buttons/CTAs:** Velvet Plum
+- **Premium/priority badges:** Gold
+- **Soft highlights/selected states:** Blush
+- **Backgrounds:** Porcelain (light) or Ink (dark) + lilac-muted cards
+- **Keep most UI neutral; use color sparingly for high-end feel**
+
+## Tech Stack
+
+### Frontend
+- **Framework:** Next.js 15+ (App Router)
+- **UI Library:** shadcn/ui + Radix UI
+- **Styling:** Tailwind CSS v4
+- **Icons:** Lucide React
+- **State Management:** React Context + Server Components
+- **Forms:** React Hook Form + Zod validation
+
+### Backend
+- **API:** Next.js API Routes / Server Actions
+- **Database:** PostgreSQL (Supabase or Vercel Postgres)
+- **Auth:** NextAuth.js or Clerk
+- **Payments:** Stripe (escrow/holds)
+- **File Storage:** Vercel Blob or Supabase Storage
+- **Verification:** Persona or Onfido (ID/selfie)
+
+### Infrastructure
+- **Hosting:** Vercel
+- **Database:** Supabase or Vercel Postgres
+- **CDN:** Vercel Edge Network
+- **Monitoring:** Vercel Analytics + Sentry
+
+## Database Schema (Core Tables)
+
+### users
+- id (uuid, primary key)
+- email (unique)
+- phone (optional, unique)
+- role (enum: invitee, requester, both)
+- verification_status (enum: unverified, pending, verified)
+- created_at, updated_at
+
+### profiles
+- id (uuid, primary key)
+- user_id (foreign key)
+- display_name
+- age
+- city
+- bio
+- intent (enum: dating, relationship, friends)
+- date_preferences (jsonb)
+- boundaries (text)
+- screening_questions (jsonb)
+- deposit_amount (integer, cents)
+- cancellation_policy (text)
+- availability_visibility (enum)
+- created_at, updated_at
+
+### availability_rules
+- id (uuid, primary key)
+- profile_id (foreign key)
+- day_of_week (0-6)
+- start_time (time)
+- end_time (time)
+- active (boolean)
+
+### availability_slots
+- id (uuid, primary key)
+- profile_id (foreign key)
+- start_datetime (timestamp)
+- end_datetime (timestamp)
+- status (enum: open, requested, booked, completed)
+
+### date_requests
+- id (uuid, primary key)
+- invitee_id (foreign key)
+- requester_id (foreign key)
+- slot_id (foreign key, nullable)
+- screening_answers (jsonb)
+- intro_message (text)
+- deposit_amount (integer, cents)
+- deposit_status (enum: pending, held, refunded, released)
+- approval_status (enum: pending, approved, declined)
+- created_at, updated_at
+
+### payments
+- id (uuid, primary key)
+- request_id (foreign key)
+- stripe_payment_intent_id
+- amount (integer, cents)
+- status (enum: pending, succeeded, failed, refunded)
+- created_at, updated_at
+
+### chats
+- id (uuid, primary key)
+- request_id (foreign key)
+- created_at
+
+### messages
+- id (uuid, primary key)
+- chat_id (foreign key)
+- sender_id (foreign key)
+- content (text)
+- created_at
+
+## Compliance & Legal
+
+### App Store Considerations
+- **Google Play:** High rejection risk if framed as "pay to date"
+- **Apple App Store:** High rejection risk if "payment for access to person"
+- **Solution:** Frame as "reservation deposit" / "no-show protection"
+- **Avoid:** "Bidding", "auction", "pay me to date me" language
+
+### Payment Processor Risk
+- Stripe lists dating as higher-risk category
+- Must have clear terms that money is NOT for "access to a person"
+- Escrow/refundable structure is safer
+- Clear dispute resolution required
+
+### Safety & Moderation
+- 18+ only (strict age verification)
+- Public meetup requirements
+- Report/block system
+- Moderation team for disputes
+- Clear terms of service
+- Privacy policy (GDPR/CCPA compliant)
+
+### Advertising Restrictions
+- Google Ads may require dating certification
+- Facebook/Instagram have dating ad restrictions
+- Plan for organic/referral growth initially
+
+## Success Metrics (v1)
+
+### Acquisition
+- Sign-ups per week
+- Invitee vs requester ratio
+- Verification completion rate
+
+### Engagement
+- Requests sent per week
+- Approval rate
+- Time to approval
+- Chat initiation rate
+
+### Revenue
+- Deposits processed
+- Average deposit amount
+- Refund rate
+- Chargeback rate
+
+### Safety
+- Reports per 1000 users
+- Block rate
+- Verification pass rate
+
+## Go-to-Market Strategy
+
+### Phase 1: Private Beta (Weeks 1-4)
+- Invite-only (50 invitees, 200 requesters)
+- Major cities only (NYC, LA, SF)
+- Manual verification
+- Direct feedback loops
+
+### Phase 2: Public Beta (Weeks 5-12)
+- Open sign-ups with waitlist
+- Automated verification
+- Referral system
+- Content marketing (safety-focused)
+
+### Phase 3: Scale (Week 13+)
+- Paid acquisition (if economics work)
+- Expand cities
+- Native apps (if web validates)
+- Partnership with venues
+
+## Risk Mitigation
+
+### Technical Risks
+- Payment processor rejection → Have backup (Stripe + Braintree)
+- Fraud/chargebacks → Strong verification + clear policies
+- Scalability → Vercel + Supabase handle scale well
+
+### Business Risks
+- Low approval rates → Improve matching/screening
+- High refund rates → Better cancellation policies
+- Safety incidents → Strong moderation + public-only baseline
+
+### Legal Risks
+- App store rejection → Web-first strategy
+- Payment processor issues → Clear "reservation" framing
+- Liability → Strong ToS + insurance
+
+## Open Questions
+1. What happens if both parties no-show?
+2. Should deposits be tiered (coffee vs dinner)?
+3. How do we handle timezone differences?
+4. Should we allow video verification calls pre-date?
+5. What's the dispute resolution process?
+6. Should we have a "date happened" confirmation from both sides?
+
+## Next Steps
+1. ✅ Finalize PRD
+2. Set up Next.js project with shadcn/ui
+3. Design database schema
+4. Build authentication flow
+5. Build profile creation (invitee)
+6. Build profile creation (requester)
+7. Build request flow
+8. Integrate Stripe (test mode)
+9. Build approval flow
+10. Build chat system
+11. Deploy to Vercel (staging)
+12. Internal testing
+13. Private beta launch
