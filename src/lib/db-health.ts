@@ -26,13 +26,13 @@ export async function checkDatabaseConnection(): Promise<{
 export async function getDatabaseInfo() {
   try {
     const versionResult = await db.execute(sql`SELECT version()`)
-    const version = versionResult.rows[0]?.version || "Unknown"
+    const version = (versionResult[0] as any)?.version || "Unknown"
 
     const maxConnectionsResult = await db.execute(
       sql`SHOW max_connections`
     )
     const maxConnections =
-      maxConnectionsResult.rows[0]?.max_connections || "Unknown"
+      (maxConnectionsResult[0] as any)?.max_connections || "Unknown"
 
     return {
       version,
