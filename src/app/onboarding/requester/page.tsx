@@ -227,7 +227,7 @@ export default function RequesterOnboardingPage() {
                 <div className="bg-muted/50 p-6 rounded-lg space-y-4">
                   <h3 className="font-semibold text-lg">Complete Your Profile</h3>
                   <p className="text-sm text-muted-foreground">
-                    Before you can send date requests, you'll need to:
+                    Before you can send date requests, you&apos;ll need to:
                   </p>
                   <ul className="space-y-2 text-sm">
                     <li className="flex items-start gap-2">
@@ -252,8 +252,8 @@ export default function RequesterOnboardingPage() {
                 <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg">
                   <h4 className="font-semibold mb-2 text-sm">How Deposits Work</h4>
                   <p className="text-sm text-muted-foreground">
-                    When you send a date request, you'll pay a refundable deposit set by the invitee. 
-                    If they decline, you get a full refund. If they approve and the date happens, 
+                    When you send a date request, you&apos;ll pay a refundable deposit set by the invitee.
+                    If they decline, you get a full refund. If they approve and the date happens,
                     the deposit is refunded per their cancellation policy.
                   </p>
                 </div>

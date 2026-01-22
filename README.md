@@ -49,7 +49,48 @@ DATABASE_URL=
 STRIPE_SECRET_KEY=
 STRIPE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=http://localhost:3000
 ```
+
+## Development Progress
+
+This project is being developed incrementally using autonomous coding agents. Progress is tracked in:
+
+- **`feature_list.json`** - 65 features across 10 phases with completion status
+- **`claude-progress.txt`** - Session-by-session development log
+- **`prd.txt`** - Complete product requirements document
+
+### Current Status: 12/65 features complete (18%)
+
+**Phase 1 (Infrastructure):** ✅ Complete (12/12)
+- Project setup, design system, database schema, basic UI pages
+
+**Phase 2 (Auth):** 🔄 Next (0/6)
+- Authentication, session management, protected routes
+
+**Phases 3-10:** ⏳ Pending
+- Profiles, Browse, Requests, Management, Chat, Verification, Safety, Polish
+
+### For Autonomous Agents
+
+When working on this project:
+
+1. **Check Progress:** Read `claude-progress.txt` and `feature_list.json` first
+2. **Pick Next Feature:** Focus on incomplete features in the current phase (prioritize P0 → P1 → P2)
+3. **Test Thoroughly:** Verify the feature works before marking as complete
+4. **Update Tracking:**
+   - Update `feature_list.json` with `"passes": true` and `"completedAt": "YYYY-MM-DD"`
+   - Append progress to `claude-progress.txt` with what was done
+5. **Run Tests:** Use `npm run build` and `npm run lint` to catch errors
+
+### Testing Features
+
+To verify a feature is complete:
+- UI features: Visual inspection + user flow testing
+- API features: Test with curl/Postman or integration tests
+- Database features: Check data persistence and relationships
+- Build: Must pass `npm run build` without errors
 
 ## Learn More
 

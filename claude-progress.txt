@@ -183,6 +183,59 @@ Note: Database is configured and migrations are ready. Run `npm run db:migrate` 
 
 ---
 
+## Session 3: Password Reset Flow - 2026-01-21
+
+### Completed Features (1)
+✅ VH-016: Password Reset Flow
+
+### VH-016: Password Reset Flow
+- Added `passwordResetTokens` table to database schema
+  - UUID primary key, userId foreign key, unique token, expiration timestamp
+  - Tokens expire after 1 hour
+  - Cascade delete when user is deleted
+- Generated database migration (drizzle/0001_curved_mad_thinker.sql)
+- Created `/src/app/api/auth/forgot-password/route.ts`
+  - POST endpoint to request password reset
+  - Generates secure random token
+  - Prevents email enumeration attacks
+  - Logs reset link to console (email integration pending)
+- Created `/src/app/api/auth/reset-password/route.ts`
+  - POST endpoint to reset password with token
+  - Validates token expiration
+  - Password strength validation (min 8 characters)
+  - Hashes new password with bcrypt
+  - Deletes token after successful reset
+- Created `/src/app/auth/forgot-password/page.tsx`
+  - UI page for requesting password reset
+  - Email input form
+  - Success message after submission
+- Created `/src/app/auth/reset-password/page.tsx`
+  - UI page for resetting password with token
+  - Token extracted from URL query parameter
+  - Password confirmation field
+  - Redirects to sign in after successful reset
+
+### Session Summary: Completed Features (18/65)
+Phase 1 (Infrastructure): ✅ 12/12 complete
+Phase 2 (Auth): 🔄 4/6 complete (VH-013, VH-014, VH-015, VH-016)
+Phase 3 (Profiles): 🔄 2/9 complete (VH-019, VH-020)
+
+### Current Status: Phase 2 (Authentication)
+- P1 features complete: 1/1 (VH-016)
+- P1 features remaining: VH-017 (Email Verification)
+- P2 features remaining: VH-018 (Two-Factor Authentication)
+
+### Next Steps
+The next P1 feature in Phase 2:
+- VH-017: Email Verification - Implement email verification flow for new user accounts
+
+Alternatively, can move to Phase 3 Profile features:
+- VH-021: User CRUD Queries
+- VH-022: Profile CRUD Queries
+- VH-023: Profile API Routes
+
+---
+
 ## Future Session Notes
 
 [Future autonomous agents will add their progress here]

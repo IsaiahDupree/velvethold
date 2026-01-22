@@ -118,7 +118,7 @@ export default function Home() {
                 <div>
                   <h3 className="font-semibold mb-2">Public Meetups Only</h3>
                   <p className="text-muted-foreground">
-                    First dates must be in public places for everyone's safety
+                    First dates must be in public places for everyone&apos;s safety
                   </p>
                 </div>
               </div>

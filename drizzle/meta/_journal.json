@@ -8,6 +8,13 @@
       "when": 1769046216072,
       "tag": "0000_greedy_gargoyle",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769046585109,
+      "tag": "0001_curved_mad_thinker",
+      "breakpoints": true
     }
   ]
 }

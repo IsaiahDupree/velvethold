@@ -23,7 +23,7 @@ export default function OnboardingPage() {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <UserCircle className="w-8 h-8 text-primary" />
               </div>
-              <CardTitle className="text-2xl">I'm an Invitee</CardTitle>
+              <CardTitle className="text-2xl">I&apos;m an Invitee</CardTitle>
               <CardDescription className="text-base">
                 Set your terms, receive date requests, and approve the matches you like
               </CardDescription>
@@ -58,7 +58,7 @@ export default function OnboardingPage() {
               <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-secondary" />
               </div>
-              <CardTitle className="text-2xl">I'm a Requester</CardTitle>
+              <CardTitle className="text-2xl">I&apos;m a Requester</CardTitle>
               <CardDescription className="text-base">
                 Browse profiles, send date requests, and connect with quality matches
               </CardDescription>
