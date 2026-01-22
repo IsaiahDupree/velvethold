@@ -5,6 +5,8 @@ import {
   updateProfileByUserId,
   deleteProfileByUserId,
 } from "@/db/queries/profiles";
+import { updateProfileSchema } from "@/lib/validations/profile";
+import { ZodError } from "zod";
 
 /**
  * GET /api/profiles/me
@@ -47,52 +49,11 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const {
-      displayName,
-      age,
-      city,
-      bio,
-      intent,
-      datePreferences,
-      boundaries,
-      screeningQuestions,
-      depositAmount,
-      cancellationPolicy,
-      availabilityVisibility,
-    } = body;
 
-    // Validate age if provided
-    if (age !== undefined && (age < 18 || age > 120)) {
-      return NextResponse.json(
-        { error: "Invalid age. Must be between 18 and 120" },
-        { status: 400 }
-      );
-    }
+    // Validate input with Zod
+    const validatedData = updateProfileSchema.parse(body);
 
-    // Validate intent if provided
-    if (intent && !["dating", "relationship", "friends"].includes(intent)) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid intent. Must be one of: dating, relationship, friends",
-        },
-        { status: 400 }
-      );
-    }
-
-    const profile = await updateProfileByUserId(user.id, {
-      displayName,
-      age,
-      city,
-      bio,
-      intent,
-      datePreferences,
-      boundaries,
-      screeningQuestions,
-      depositAmount,
-      cancellationPolicy,
-      availabilityVisibility,
-    });
+    const profile = await updateProfileByUserId(user.id, validatedData);
 
     if (!profile) {
       return NextResponse.json(
@@ -107,6 +68,14 @@ export async function PATCH(request: NextRequest) {
     });
   } catch (error) {
     console.error("Profile update error:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

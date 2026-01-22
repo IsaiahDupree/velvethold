@@ -4,19 +4,16 @@ import { users } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcrypt"
 import { createVerificationToken } from "@/lib/email-verification"
+import { signUpSchema } from "@/lib/validations/auth"
+import { ZodError } from "zod"
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { name, email, password } = body
 
-    // Validate input
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      )
-    }
+    // Validate input with Zod
+    const validatedData = signUpSchema.parse(body)
+    const { name, email, password } = validatedData
 
     // Check if user already exists
     const [existingUser] = await db
@@ -69,6 +66,14 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     console.error("Sign up error:", error)
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      )
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

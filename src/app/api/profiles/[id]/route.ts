@@ -5,6 +5,8 @@ import {
   updateProfile,
   deleteProfile,
 } from "@/db/queries/profiles";
+import { updateProfileSchema, profileIdSchema } from "@/lib/validations/profile";
+import { ZodError } from "zod";
 
 /**
  * GET /api/profiles/[id]
@@ -21,6 +23,10 @@ export async function GET(
     }
 
     const { id } = await params;
+
+    // Validate ID format
+    profileIdSchema.parse({ id });
+
     const profile = await getProfileById(id);
     if (!profile) {
       return NextResponse.json(
@@ -32,6 +38,14 @@ export async function GET(
     return NextResponse.json({ profile });
   } catch (error) {
     console.error("Profile fetch error:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -56,6 +70,9 @@ export async function PATCH(
 
     const { id } = await params;
 
+    // Validate ID format
+    profileIdSchema.parse({ id });
+
     // Check if profile exists and belongs to the user
     const existingProfile = await getProfileById(id);
     if (!existingProfile) {
@@ -73,52 +90,11 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const {
-      displayName,
-      age,
-      city,
-      bio,
-      intent,
-      datePreferences,
-      boundaries,
-      screeningQuestions,
-      depositAmount,
-      cancellationPolicy,
-      availabilityVisibility,
-    } = body;
 
-    // Validate age if provided
-    if (age !== undefined && (age < 18 || age > 120)) {
-      return NextResponse.json(
-        { error: "Invalid age. Must be between 18 and 120" },
-        { status: 400 }
-      );
-    }
+    // Validate input with Zod
+    const validatedData = updateProfileSchema.parse(body);
 
-    // Validate intent if provided
-    if (intent && !["dating", "relationship", "friends"].includes(intent)) {
-      return NextResponse.json(
-        {
-          error:
-            "Invalid intent. Must be one of: dating, relationship, friends",
-        },
-        { status: 400 }
-      );
-    }
-
-    const profile = await updateProfile(id, {
-      displayName,
-      age,
-      city,
-      bio,
-      intent,
-      datePreferences,
-      boundaries,
-      screeningQuestions,
-      depositAmount,
-      cancellationPolicy,
-      availabilityVisibility,
-    });
+    const profile = await updateProfile(id, validatedData);
 
     return NextResponse.json({
       message: "Profile updated successfully",
@@ -126,6 +102,14 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("Profile update error:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -149,6 +133,9 @@ export async function DELETE(
     }
 
     const { id } = await params;
+
+    // Validate ID format
+    profileIdSchema.parse({ id });
 
     // Check if profile exists and belongs to the user
     const existingProfile = await getProfileById(id);
@@ -174,6 +161,14 @@ export async function DELETE(
     });
   } catch (error) {
     console.error("Profile deletion error:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

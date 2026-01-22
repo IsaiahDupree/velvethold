@@ -5,6 +5,11 @@ import {
   createProfile,
   userHasProfile,
 } from "@/db/queries/profiles";
+import {
+  searchProfilesSchema,
+  createProfileSchema,
+} from "@/lib/validations/profile";
+import { ZodError } from "zod";
 
 /**
  * GET /api/profiles
@@ -19,39 +24,40 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const query = searchParams.get("query") || undefined;
-    const intent = searchParams.get("intent") as
-      | "dating"
-      | "relationship"
-      | "friends"
-      | undefined;
-    const city = searchParams.get("city") || undefined;
-    const minAge = searchParams.get("minAge")
-      ? parseInt(searchParams.get("minAge")!)
-      : undefined;
-    const maxAge = searchParams.get("maxAge")
-      ? parseInt(searchParams.get("maxAge")!)
-      : undefined;
-    const limit = searchParams.get("limit")
-      ? parseInt(searchParams.get("limit")!)
-      : 50;
-    const offset = searchParams.get("offset")
-      ? parseInt(searchParams.get("offset")!)
-      : 0;
 
-    const profiles = await searchProfiles({
-      query,
-      intent,
-      city,
-      minAge,
-      maxAge,
-      limit,
-      offset,
-    });
+    // Parse and validate search parameters
+    const searchInput = {
+      query: searchParams.get("query") || undefined,
+      intent: searchParams.get("intent") || undefined,
+      city: searchParams.get("city") || undefined,
+      minAge: searchParams.get("minAge")
+        ? parseInt(searchParams.get("minAge")!)
+        : undefined,
+      maxAge: searchParams.get("maxAge")
+        ? parseInt(searchParams.get("maxAge")!)
+        : undefined,
+      limit: searchParams.get("limit")
+        ? parseInt(searchParams.get("limit")!)
+        : 50,
+      offset: searchParams.get("offset")
+        ? parseInt(searchParams.get("offset")!)
+        : 0,
+    };
+
+    const validatedSearch = searchProfilesSchema.parse(searchInput);
+    const profiles = await searchProfiles(validatedSearch);
 
     return NextResponse.json({ profiles, count: profiles.length });
   } catch (error) {
     console.error("Profile search error:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -80,45 +86,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { displayName, age, city, bio, intent, datePreferences, boundaries, screeningQuestions, depositAmount, cancellationPolicy, availabilityVisibility } = body;
 
-    // Validate required fields
-    if (!displayName || !age || !city) {
-      return NextResponse.json(
-        { error: "Missing required fields: displayName, age, city" },
-        { status: 400 }
-      );
-    }
-
-    // Validate age
-    if (age < 18 || age > 120) {
-      return NextResponse.json(
-        { error: "Invalid age. Must be between 18 and 120" },
-        { status: 400 }
-      );
-    }
-
-    // Validate intent if provided
-    if (intent && !["dating", "relationship", "friends"].includes(intent)) {
-      return NextResponse.json(
-        { error: "Invalid intent. Must be one of: dating, relationship, friends" },
-        { status: 400 }
-      );
-    }
+    // Validate input with Zod
+    const validatedData = createProfileSchema.parse(body);
 
     const profile = await createProfile({
       userId: user.id,
-      displayName,
-      age,
-      city,
-      bio,
-      intent,
-      datePreferences,
-      boundaries,
-      screeningQuestions,
-      depositAmount,
-      cancellationPolicy,
-      availabilityVisibility,
+      ...validatedData,
     });
 
     return NextResponse.json(
@@ -127,6 +101,14 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("Profile creation error:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
