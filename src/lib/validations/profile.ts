@@ -37,12 +37,12 @@ export const createProfileSchema = z.object({
     .max(2000, "Bio must be less than 2000 characters")
     .optional(),
   intent: z.enum(intentValues).optional(),
-  datePreferences: z.record(z.any()).optional(),
+  datePreferences: z.union([z.array(z.string()), z.record(z.any())]).optional(),
   boundaries: z
     .string()
     .max(2000, "Boundaries must be less than 2000 characters")
     .optional(),
-  screeningQuestions: z.record(z.any()).optional(),
+  screeningQuestions: z.union([z.array(z.string()), z.record(z.any())]).optional(),
   depositAmount: z
     .number()
     .int("Deposit amount must be a whole number")
@@ -83,12 +83,12 @@ export const updateProfileSchema = z.object({
     .max(2000, "Bio must be less than 2000 characters")
     .optional(),
   intent: z.enum(intentValues).optional(),
-  datePreferences: z.record(z.any()).optional(),
+  datePreferences: z.union([z.array(z.string()), z.record(z.any())]).optional(),
   boundaries: z
     .string()
     .max(2000, "Boundaries must be less than 2000 characters")
     .optional(),
-  screeningQuestions: z.record(z.any()).optional(),
+  screeningQuestions: z.union([z.array(z.string()), z.record(z.any())]).optional(),
   depositAmount: z
     .number()
     .int("Deposit amount must be a whole number")

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,10 @@ const STEPS = [
 ];
 
 export default function InviteeOnboardingPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     displayName: "",
     age: "",
@@ -45,8 +49,53 @@ export default function InviteeOnboardingPage() {
     }
   };
 
-  const handleSubmit = () => {
-    console.log("Form submitted:", formData);
+  const handleSubmit = async () => {
+    setError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Transform form data to match API schema
+      const profileData = {
+        displayName: formData.displayName,
+        age: parseInt(formData.age),
+        city: formData.city,
+        bio: formData.bio || undefined,
+        intent: formData.intent,
+        datePreferences: formData.datePreferences.length > 0 ? formData.datePreferences : undefined,
+        boundaries: formData.boundaries || undefined,
+        screeningQuestions: formData.screeningQuestions.filter(q => q.trim() !== ""),
+        depositAmount: formData.depositAmount ? parseInt(formData.depositAmount) : undefined,
+        cancellationPolicy: formData.cancellationPolicy || undefined,
+        availabilityVisibility: formData.availabilityVisibility,
+      };
+
+      // Make API call to create profile
+      const response = await fetch("/api/profiles", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.details) {
+          // Zod validation errors
+          const errorMessages = data.details.map((err: any) => err.message).join(", ");
+          throw new Error(errorMessages);
+        }
+        throw new Error(data.error || "Failed to create profile");
+      }
+
+      // Success - redirect to dashboard or next step
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Profile creation error:", err);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setIsSubmitting(false);
+    }
   };
 
   const updateFormData = (field: string, value: any) => {
@@ -109,6 +158,12 @@ export default function InviteeOnboardingPage() {
             <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <div className="mb-4 p-4 bg-destructive/10 border border-destructive rounded-lg">
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
+            )}
+
             {currentStep === 1 && (
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -344,8 +399,8 @@ export default function InviteeOnboardingPage() {
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
               ) : (
-                <Button onClick={handleSubmit}>
-                  Complete Setup
+                <Button onClick={handleSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? "Creating Profile..." : "Complete Setup"}
                 </Button>
               )}
             </div>
