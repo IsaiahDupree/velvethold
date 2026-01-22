@@ -2,9 +2,9 @@ import { requireAuth } from "@/lib/session";
 import { searchProfiles } from "@/db/queries/profiles";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { MapPin, Calendar, Heart, Search, SlidersHorizontal } from "lucide-react";
+import { Heart, Search, SlidersHorizontal } from "lucide-react";
+import { ProfileCard } from "@/components/ProfileCard";
 
 export default async function BrowsePage({
   searchParams,
@@ -135,61 +135,7 @@ export default async function BrowsePage({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {profiles.map((profile) => (
-              <Card
-                key={profile.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
-              >
-                <CardHeader className="pb-4">
-                  {/* Profile Avatar Placeholder */}
-                  <div className="w-full aspect-square bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg mb-4 flex items-center justify-center">
-                    <div className="text-6xl font-bold text-primary/40">
-                      {profile.displayName.charAt(0).toUpperCase()}
-                    </div>
-                  </div>
-
-                  <CardTitle className="text-xl">
-                    {profile.displayName}, {profile.age}
-                  </CardTitle>
-
-                  <CardDescription className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4" />
-                      {profile.city}
-                    </div>
-                    {profile.intent && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Heart className="h-4 w-4" />
-                        {profile.intent.charAt(0).toUpperCase() + profile.intent.slice(1)}
-                      </div>
-                    )}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {profile.bio && (
-                    <p className="text-sm text-muted-foreground line-clamp-3">
-                      {profile.bio}
-                    </p>
-                  )}
-
-                  {profile.depositAmount && (
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <span className="text-sm text-muted-foreground">
-                        Deposit Amount
-                      </span>
-                      <span className="font-semibold">
-                        ${(profile.depositAmount / 100).toFixed(2)}
-                      </span>
-                    </div>
-                  )}
-
-                  <Button className="w-full" asChild>
-                    <Link href={`/profiles/${profile.id}`}>
-                      View Profile
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <ProfileCard key={profile.id} profile={profile} />
             ))}
           </div>
         )}
