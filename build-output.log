@@ -1,0 +1,26 @@
+
+> velvethold@0.1.0 build
+> next build
+
+   ▲ Next.js 15.1.4
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+Failed to compile.
+
+./src/app/profiles/[id]/page.tsx:68:11
+Type error: Type '{ intent: "dating" | "relationship" | "friends"; id: string; createdAt: Date; updatedAt: Date; userId: string; displayName: string; age: number; city: string; bio: string | null; ... 5 more ...; availabilityVisibility: "verified" | ... 3 more ... | null; }' is not assignable to type '{ id: string; displayName: string; age: number; city: string; bio?: string | null | undefined; intent?: string | null | undefined; datePreferences?: Record<string, any> | null | undefined; ... 5 more ...; createdAt?: Date | ... 1 more ... | undefined; }'.
+  Types of property 'datePreferences' are incompatible.
+    Type 'unknown' is not assignable to type 'Record<string, any> | null | undefined'.
+
+[0m [90m 66 |[39m         {[90m/* Profile Detail Component */[39m}[0m
+[0m [90m 67 |[39m         [33m<[39m[33mProfileDetail[39m[0m
+[0m[31m[1m>[22m[39m[90m 68 |[39m           profile[33m=[39m{profile}[0m
+[0m [90m    |[39m           [31m[1m^[22m[39m[0m
+[0m [90m 69 |[39m           showRequestButton[33m=[39m{[33m![39misOwnProfile}[0m
+[0m [90m 70 |[39m           onRequestDate[33m=[39m{undefined}[0m
+[0m [90m 71 |[39m         [33m/[39m[33m>[39m[0m
+Static worker exited with code: 1 and signal: null
