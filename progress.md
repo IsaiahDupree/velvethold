@@ -135,11 +135,34 @@ Implemented Browse Page Layout (VH-028) - Created comprehensive profile browsing
 - `src/app/browse/page.tsx` - Browse page with profile grid and search UI (created)
 - `feature_list.json` - Updated completion status (modified)
 
+#### **VH-029: ProfileCard Component** ✅
+- Created reusable ProfileCard component to display profile information consistently
+- **Component Features**:
+  - Avatar placeholder with first letter of display name
+  - Display name and age
+  - City with location icon
+  - Intent (dating/relationship/friends) with heart icon
+  - Bio preview (truncated to 3 lines)
+  - Deposit amount formatted as currency
+  - "View Profile" button linking to `/profiles/[id]`
+- **Props Interface**: Properly typed with TypeScript (`ProfileCardProps`)
+- Extracted from browse page to eliminate code duplication
+- Maintains all existing styling and hover effects
+- Updated browse page to use new ProfileCard component
+- Reduced browse page code by 55+ lines
+- Verified build passes with `npm run build`
+- Component is ready to be reused in other parts of the application
+
+### Files Created/Modified
+- `src/components/ProfileCard.tsx` - Reusable profile card component (created)
+- `src/app/browse/page.tsx` - Updated to use ProfileCard component (modified)
+- `feature_list.json` - Updated completion status (modified)
+
 ### Next Steps
 The next priority P0 feature to implement is:
-- **VH-029: ProfileCard Component** - Extract profile card into reusable component
+- **VH-030: ProfileDetail Component** - Create detailed profile view component
 
 ### Current Progress
 - **Total Features:** 65
-- **Completed:** 25/65 (38.5%)
+- **Completed:** 26/65 (40%)
 - **Current Phase:** Phase 4 - Browse/Discovery
