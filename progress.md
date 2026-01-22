@@ -201,11 +201,29 @@ Implemented Browse Page Layout (VH-028) - Created comprehensive profile browsing
 - `feature_list.json` - Updated completion status (modified)
 - `package.json` & `package-lock.json` - Updated dependencies (modified)
 
+#### **VH-031: Profile Search API** ✅
+- Marked as complete - this feature was already implemented in VH-023
+- **Existing Implementation**:
+  - GET /api/profiles endpoint with comprehensive search
+  - Full-text search on displayName and bio (case-insensitive)
+  - Intent filtering (dating/relationship/friends)
+  - City filtering (case-insensitive)
+  - Age range filtering (minAge, maxAge)
+  - Pagination (limit, offset)
+  - Zod validation for all parameters
+  - Used by browse page for profile discovery
+- searchProfiles() database query in src/db/queries/profiles.ts
+- All filters are optional and combine with AND logic
+- Results ordered by createdAt
+- Proper error handling and authentication
+
 ### Next Steps
 The next priority P0 feature to implement is:
-- **VH-031: Profile Search API** - Implement search functionality for profiles
+- **VH-034: Stripe Client Setup** - Set up Stripe for payment processing
+
+Note: VH-032 (Browse Filters Component) and VH-033 (Infinite Scroll Pagination) are P1 priority and can be implemented later.
 
 ### Current Progress
 - **Total Features:** 65
-- **Completed:** 27/65 (41.5%)
-- **Current Phase:** Phase 4 - Browse/Discovery
+- **Completed:** 28/65 (43.1%)
+- **Current Phase:** Phase 4 - Browse/Discovery (P0 features complete), moving to Phase 5 - Date Requests
