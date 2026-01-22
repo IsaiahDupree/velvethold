@@ -158,11 +158,54 @@ Implemented Browse Page Layout (VH-028) - Created comprehensive profile browsing
 - `src/app/browse/page.tsx` - Updated to use ProfileCard component (modified)
 - `feature_list.json` - Updated completion status (modified)
 
+#### **VH-030: ProfileDetail Component** ✅
+- Created comprehensive ProfileDetail component for displaying complete profile information
+- **Component Features**:
+  - Large avatar placeholder (8xl font size) with gradient background
+  - Profile header with name, age, location, and intent
+  - Deposit amount displayed as prominent secondary badge
+  - Full bio section with preserved whitespace formatting
+  - Date preferences displayed as key-value pairs
+  - Boundaries section for personal limits
+  - Screening questions that must be answered for date requests
+  - Cancellation policy details
+  - Availability visibility settings
+  - Conditional "Request a Date" button (hidden for own profile)
+- **Profile Detail Page** (`/profiles/[id]`):
+  - Server-side rendered with authentication required
+  - Fetches profile by ID using `getProfileById` query
+  - Returns 404 not-found page if profile doesn't exist
+  - Detects if viewing own profile vs other users
+  - Different CTAs based on ownership:
+    - Own profile: Dashboard + Edit Profile links
+    - Other profiles: Request Date + Continue Browsing buttons
+  - Sticky navigation with Browse, Inbox, Dashboard, Sign Out
+  - Back to Browse button with arrow icon
+- **Type Safety**:
+  - Proper TypeScript interfaces for ProfileDetailProps
+  - Type guards for JSONB fields (datePreferences, screeningQuestions)
+  - Handles `unknown` types from database properly
+- **Additional Components**:
+  - Added shadcn/ui Badge component for tags and labels
+  - Added shadcn/ui Separator component for visual dividers
+  - Custom not-found page with helpful error state
+- Fully responsive layout (mobile to desktop)
+- Verified build passes with `npm run build`
+
+### Files Created/Modified
+- `src/components/ProfileDetail.tsx` - Comprehensive profile detail component (created)
+- `src/app/profiles/[id]/page.tsx` - Profile detail page (created)
+- `src/app/profiles/[id]/not-found.tsx` - 404 page for missing profiles (created)
+- `src/components/ui/badge.tsx` - Badge UI component from shadcn (created)
+- `src/components/ui/separator.tsx` - Separator UI component from shadcn (created)
+- `feature_list.json` - Updated completion status (modified)
+- `package.json` & `package-lock.json` - Updated dependencies (modified)
+
 ### Next Steps
 The next priority P0 feature to implement is:
-- **VH-030: ProfileDetail Component** - Create detailed profile view component
+- **VH-031: Profile Search API** - Implement search functionality for profiles
 
 ### Current Progress
 - **Total Features:** 65
-- **Completed:** 26/65 (40%)
+- **Completed:** 27/65 (41.5%)
 - **Current Phase:** Phase 4 - Browse/Discovery
