@@ -12,7 +12,9 @@ export const visibilityLevelEnum = pgEnum("visibility_level", ["public", "verifi
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   phone: varchar("phone", { length: 20 }),
   role: userRoleEnum("role").notNull().default("requester"),
   verificationStatus: verificationStatusEnum("verification_status").notNull().default("unverified"),
