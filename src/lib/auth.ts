@@ -10,7 +10,13 @@ declare module "next-auth" {
     user: {
       id: string
       role: "invitee" | "requester" | "both"
+      verificationStatus: "unverified" | "pending" | "verified"
     } & DefaultSession["user"]
+  }
+
+  interface User {
+    role: "invitee" | "requester" | "both"
+    verificationStatus: "unverified" | "pending" | "verified"
   }
 }
 
@@ -53,6 +59,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           role: user.role,
+          verificationStatus: user.verificationStatus,
         }
       },
     }),
@@ -62,6 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id
         token.role = user.role
+        token.verificationStatus = user.verificationStatus
       }
       return token
     },
@@ -69,6 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token && session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as "invitee" | "requester" | "both"
+        session.user.verificationStatus = token.verificationStatus as "unverified" | "pending" | "verified"
       }
       return session
     },

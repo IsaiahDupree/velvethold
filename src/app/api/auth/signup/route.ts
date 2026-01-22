@@ -3,6 +3,7 @@ import { db } from "@/db"
 import { users } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcrypt"
+import { createVerificationToken } from "@/lib/email-verification"
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,17 +43,27 @@ export async function POST(request: NextRequest) {
         email,
         passwordHash,
         role: "requester", // Default role
+        verificationStatus: "unverified", // Email not verified yet
       })
       .returning()
 
+    // Create verification token
+    const verificationToken = await createVerificationToken(newUser.id, email)
+
+    // TODO: Send verification email with token
+    // For now, we'll return the token in the response (remove this in production)
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${verificationToken.token}`
+
     return NextResponse.json(
       {
-        message: "User created successfully",
+        message: "User created successfully. Please check your email to verify your account.",
         user: {
           id: newUser.id,
           name: newUser.name,
           email: newUser.email,
         },
+        // Remove this in production - only for development
+        verificationUrl,
       },
       { status: 201 }
     )

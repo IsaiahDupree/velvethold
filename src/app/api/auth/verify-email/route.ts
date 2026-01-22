@@ -1,0 +1,81 @@
+import { NextRequest, NextResponse } from "next/server"
+import { verifyEmailToken } from "@/lib/email-verification"
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { token } = body
+
+    // Validate input
+    if (!token) {
+      return NextResponse.json(
+        { error: "Verification token is required" },
+        { status: 400 }
+      )
+    }
+
+    // Verify the token
+    const result = await verifyEmailToken(token)
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      {
+        message: "Email verified successfully",
+        userId: result.userId,
+      },
+      { status: 200 }
+    )
+  } catch (error) {
+    console.error("Email verification error:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}
+
+// Also support GET method for URL-based verification
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const token = searchParams.get("token")
+
+    // Validate input
+    if (!token) {
+      return NextResponse.json(
+        { error: "Verification token is required" },
+        { status: 400 }
+      )
+    }
+
+    // Verify the token
+    const result = await verifyEmailToken(token)
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json(
+      {
+        message: "Email verified successfully",
+        userId: result.userId,
+      },
+      { status: 200 }
+    )
+  } catch (error) {
+    console.error("Email verification error:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
+}

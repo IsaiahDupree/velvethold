@@ -20,9 +20,17 @@ const authRoutes = ["/auth/signin", "/auth/signup"]
 // Public routes that don't need authentication
 const publicRoutes = ["/", "/about", "/terms", "/privacy"]
 
+// Routes that don't require email verification
+const unverifiedAllowedRoutes = [
+  "/auth/unverified",
+  "/auth/verify-email",
+  "/auth/signout",
+]
+
 export default auth((req) => {
   const { pathname } = req.nextUrl
   const isAuthenticated = !!req.auth
+  const user = req.auth?.user
 
   // Check if the route is protected
   const isProtectedRoute = protectedRoutes.some((route) =>
@@ -32,11 +40,25 @@ export default auth((req) => {
   // Check if it's an auth route
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
 
+  // Check if it's an unverified allowed route
+  const isUnverifiedAllowedRoute = unverifiedAllowedRoutes.some((route) =>
+    pathname.startsWith(route)
+  )
+
   // Redirect unauthenticated users trying to access protected routes
   if (isProtectedRoute && !isAuthenticated) {
     const signInUrl = new URL("/auth/signin", req.url)
     signInUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(signInUrl)
+  }
+
+  // Redirect authenticated but unverified users to verification page
+  if (
+    isAuthenticated &&
+    user?.verificationStatus !== "verified" &&
+    !isUnverifiedAllowedRoute
+  ) {
+    return NextResponse.redirect(new URL("/auth/unverified", req.url))
   }
 
   // Redirect authenticated users away from auth routes

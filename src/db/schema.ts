@@ -30,6 +30,15 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -112,6 +121,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   receivedRequests: many(dateRequests, { relationName: "invitee" }),
   messages: many(messages),
   passwordResetTokens: many(passwordResetTokens),
+  emailVerificationTokens: many(emailVerificationTokens),
 }));
 
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
@@ -164,6 +174,13 @@ export const messagesRelations = relations(messages, ({ one }) => ({
 export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
   user: one(users, {
     fields: [passwordResetTokens.userId],
+    references: [users.id],
+  }),
+}));
+
+export const emailVerificationTokensRelations = relations(emailVerificationTokens, ({ one }) => ({
+  user: one(users, {
+    fields: [emailVerificationTokens.userId],
     references: [users.id],
   }),
 }));
