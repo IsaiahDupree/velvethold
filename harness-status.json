@@ -1,16 +1,16 @@
 {
   "projectId": "velvethold",
   "projectRoot": "/Users/isaiahdupree/Documents/Software/VelvetHold",
-  "lastUpdated": "2026-01-23T17:43:38.307Z",
+  "lastUpdated": "2026-01-23T18:53:05.567Z",
   "sessionType": "error",
-  "status": "auth_failed",
+  "status": "max_errors",
   "stats": {
     "total": 65,
     "passing": 28,
     "pending": 37,
     "percentComplete": "43.1"
   },
-  "pid": 71507,
-  "message": "Invalid API key - harness stopped",
-  "errorType": "auth_error"
+  "pid": 79412,
+  "message": "Stopped after 5 consecutive errors",
+  "lastError": "rate_limit"
 }
