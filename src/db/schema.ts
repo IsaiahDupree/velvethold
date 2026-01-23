@@ -18,6 +18,9 @@ export const users = pgTable("users", {
   phone: varchar("phone", { length: 20 }),
   role: userRoleEnum("role").notNull().default("requester"),
   verificationStatus: verificationStatusEnum("verification_status").notNull().default("unverified"),
+  twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
+  twoFactorSecret: varchar("two_factor_secret", { length: 255 }),
+  twoFactorBackupCodes: jsonb("two_factor_backup_codes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
