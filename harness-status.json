@@ -1,16 +1,15 @@
 {
   "projectId": "velvethold",
   "projectRoot": "/Users/isaiahdupree/Documents/Software/VelvetHold",
-  "lastUpdated": "2026-01-23T20:18:27.488Z",
-  "sessionType": "error",
-  "status": "max_errors",
+  "lastUpdated": "2026-01-26T23:45:00.000Z",
+  "sessionType": "CODING",
+  "status": "running",
   "stats": {
-    "total": 65,
-    "passing": 28,
-    "pending": 37,
-    "percentComplete": "43.1"
+    "total": 93,
+    "passing": 29,
+    "pending": 64,
+    "percentComplete": "31.2"
   },
-  "pid": 86884,
-  "message": "Stopped after 5 consecutive errors",
-  "lastError": "rate_limit"
+  "pid": 67619,
+  "currentSession": 1
 }
