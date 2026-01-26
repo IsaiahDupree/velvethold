@@ -17,70 +17,682 @@
     "phase10_polish": "Email notifications, settings, testing"
   },
   "features": [
-    {"id": "VH-001", "name": "Next.js 15 Project Setup", "priority": "P0", "phase": "phase1_infrastructure", "effort": "S", "passes": true, "completedAt": "2026-01-20", "category": "infrastructure"},
-    {"id": "VH-002", "name": "Tailwind CSS v4 with Brand Colors", "priority": "P0", "phase": "phase1_infrastructure", "effort": "S", "passes": true, "completedAt": "2026-01-20", "category": "design"},
-    {"id": "VH-003", "name": "shadcn/ui Component Library", "priority": "P0", "phase": "phase1_infrastructure", "effort": "S", "passes": true, "completedAt": "2026-01-20", "category": "design"},
-    {"id": "VH-004", "name": "Drizzle ORM Database Schema", "priority": "P0", "phase": "phase1_infrastructure", "effort": "M", "passes": true, "completedAt": "2026-01-20", "category": "database"},
-    {"id": "VH-005", "name": "Landing Page", "priority": "P0", "phase": "phase1_infrastructure", "effort": "M", "passes": true, "completedAt": "2026-01-20", "category": "frontend"},
-    {"id": "VH-006", "name": "Sign Up Page UI", "priority": "P0", "phase": "phase1_infrastructure", "effort": "S", "passes": true, "completedAt": "2026-01-20", "category": "frontend"},
-    {"id": "VH-007", "name": "Sign In Page UI", "priority": "P0", "phase": "phase1_infrastructure", "effort": "S", "passes": true, "completedAt": "2026-01-20", "category": "frontend"},
-    {"id": "VH-008", "name": "Onboarding Role Selection", "priority": "P0", "phase": "phase1_infrastructure", "effort": "S", "passes": true, "completedAt": "2026-01-20", "category": "frontend"},
-    {"id": "VH-009", "name": "Invitee Profile Setup Wizard", "priority": "P0", "phase": "phase1_infrastructure", "effort": "L", "passes": true, "completedAt": "2026-01-20", "category": "frontend"},
-    {"id": "VH-010", "name": "Requester Profile Setup Wizard", "priority": "P0", "phase": "phase1_infrastructure", "effort": "M", "passes": true, "completedAt": "2026-01-20", "category": "frontend"},
-    {"id": "VH-011", "name": "Environment Configuration", "priority": "P0", "phase": "phase1_infrastructure", "effort": "S", "passes": true, "completedAt": "2026-01-20", "category": "infrastructure"},
-    {"id": "VH-012", "name": "Project Documentation", "priority": "P1", "phase": "phase1_infrastructure", "effort": "M", "passes": true, "completedAt": "2026-01-20", "category": "documentation"},
-    {"id": "VH-013", "name": "NextAuth.js Integration", "priority": "P0", "phase": "phase2_auth", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "auth"},
-    {"id": "VH-014", "name": "Session Management", "priority": "P0", "phase": "phase2_auth", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "auth"},
-    {"id": "VH-015", "name": "Protected Routes Middleware", "priority": "P0", "phase": "phase2_auth", "effort": "S", "passes": true, "completedAt": "2026-01-21", "category": "auth"},
-    {"id": "VH-016", "name": "Password Reset Flow", "priority": "P1", "phase": "phase2_auth", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "auth"},
-    {"id": "VH-017", "name": "Email Verification", "priority": "P1", "phase": "phase2_auth", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "auth"},
-    {"id": "VH-018", "name": "Two-Factor Authentication", "priority": "P2", "phase": "phase2_auth", "effort": "L", "passes": false, "category": "auth"},
-    {"id": "VH-019", "name": "Database Connection Setup", "priority": "P0", "phase": "phase3_profiles", "effort": "S", "passes": true, "completedAt": "2026-01-21", "category": "database"},
-    {"id": "VH-020", "name": "Database Migrations", "priority": "P0", "phase": "phase3_profiles", "effort": "S", "passes": true, "completedAt": "2026-01-21", "category": "database"},
-    {"id": "VH-021", "name": "User CRUD Queries", "priority": "P0", "phase": "phase3_profiles", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "database"},
-    {"id": "VH-022", "name": "Profile CRUD Queries", "priority": "P0", "phase": "phase3_profiles", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "database"},
-    {"id": "VH-023", "name": "Profile API Routes", "priority": "P0", "phase": "phase3_profiles", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "api"},
-    {"id": "VH-024", "name": "Zod Validation Schemas", "priority": "P0", "phase": "phase3_profiles", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "validation"},
-    {"id": "VH-025", "name": "Photo Upload System", "priority": "P1", "phase": "phase3_profiles", "effort": "L", "passes": false, "category": "storage"},
-    {"id": "VH-026", "name": "Profile Data Persistence", "priority": "P0", "phase": "phase3_profiles", "effort": "L", "passes": true, "completedAt": "2026-01-21", "category": "integration"},
-    {"id": "VH-027", "name": "Availability Settings Storage", "priority": "P1", "phase": "phase3_profiles", "effort": "M", "passes": false, "category": "database"},
-    {"id": "VH-028", "name": "Browse Page Layout", "priority": "P0", "phase": "phase4_browse", "effort": "L", "passes": true, "completedAt": "2026-01-21", "category": "frontend"},
-    {"id": "VH-029", "name": "ProfileCard Component", "priority": "P0", "phase": "phase4_browse", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "frontend"},
-    {"id": "VH-030", "name": "ProfileDetail Component", "priority": "P0", "phase": "phase4_browse", "effort": "L", "passes": true, "completedAt": "2026-01-21", "category": "frontend"},
-    {"id": "VH-031", "name": "Profile Search API", "priority": "P0", "phase": "phase4_browse", "effort": "M", "passes": true, "completedAt": "2026-01-21", "category": "api"},
-    {"id": "VH-032", "name": "Browse Filters Component", "priority": "P1", "phase": "phase4_browse", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-033", "name": "Infinite Scroll Pagination", "priority": "P1", "phase": "phase4_browse", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-034", "name": "Stripe Client Setup", "priority": "P0", "phase": "phase5_requests", "effort": "S", "passes": false, "category": "payments"},
-    {"id": "VH-035", "name": "Payment Intent Creation", "priority": "P0", "phase": "phase5_requests", "effort": "M", "passes": false, "category": "payments"},
-    {"id": "VH-036", "name": "Stripe Webhook Handler", "priority": "P0", "phase": "phase5_requests", "effort": "M", "passes": false, "category": "payments"},
-    {"id": "VH-037", "name": "Refund Processing", "priority": "P0", "phase": "phase5_requests", "effort": "M", "passes": false, "category": "payments"},
-    {"id": "VH-038", "name": "Request Creation Page", "priority": "P0", "phase": "phase5_requests", "effort": "L", "passes": false, "category": "frontend"},
-    {"id": "VH-039", "name": "Screening Questions Form", "priority": "P0", "phase": "phase5_requests", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-040", "name": "Payment Form Component", "priority": "P0", "phase": "phase5_requests", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-041", "name": "Request API Routes", "priority": "P0", "phase": "phase5_requests", "effort": "M", "passes": false, "category": "api"},
-    {"id": "VH-042", "name": "Request Inbox Page", "priority": "P0", "phase": "phase6_management", "effort": "L", "passes": false, "category": "frontend"},
-    {"id": "VH-043", "name": "RequestCard Component", "priority": "P0", "phase": "phase6_management", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-044", "name": "RequestDetail Component", "priority": "P0", "phase": "phase6_management", "effort": "L", "passes": false, "category": "frontend"},
-    {"id": "VH-045", "name": "Approve Request API", "priority": "P0", "phase": "phase6_management", "effort": "M", "passes": false, "category": "api"},
-    {"id": "VH-046", "name": "Decline Request API", "priority": "P0", "phase": "phase6_management", "effort": "M", "passes": false, "category": "api"},
-    {"id": "VH-047", "name": "Request Expiration Handling", "priority": "P1", "phase": "phase6_management", "effort": "M", "passes": false, "category": "backend"},
-    {"id": "VH-048", "name": "Chat List Page", "priority": "P0", "phase": "phase7_chat", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-049", "name": "ChatWindow Component", "priority": "P0", "phase": "phase7_chat", "effort": "L", "passes": false, "category": "frontend"},
-    {"id": "VH-050", "name": "Real-Time Messaging", "priority": "P0", "phase": "phase7_chat", "effort": "L", "passes": false, "category": "integration"},
-    {"id": "VH-051", "name": "Chat API Routes", "priority": "P0", "phase": "phase7_chat", "effort": "M", "passes": false, "category": "api"},
-    {"id": "VH-052", "name": "Date Confirmation Flow", "priority": "P1", "phase": "phase7_chat", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-053", "name": "Message Safety Features", "priority": "P1", "phase": "phase7_chat", "effort": "M", "passes": false, "category": "safety"},
-    {"id": "VH-054", "name": "Persona Client Setup", "priority": "P0", "phase": "phase8_verification", "effort": "S", "passes": false, "category": "integration"},
-    {"id": "VH-055", "name": "Create Inquiry API", "priority": "P0", "phase": "phase8_verification", "effort": "M", "passes": false, "category": "api"},
-    {"id": "VH-056", "name": "Persona Webhook Handler", "priority": "P0", "phase": "phase8_verification", "effort": "M", "passes": false, "category": "api"},
-    {"id": "VH-057", "name": "Verification Flow UI", "priority": "P0", "phase": "phase8_verification", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-058", "name": "Report System", "priority": "P0", "phase": "phase9_safety", "effort": "M", "passes": false, "category": "safety"},
-    {"id": "VH-059", "name": "Block User Functionality", "priority": "P0", "phase": "phase9_safety", "effort": "M", "passes": false, "category": "safety"},
-    {"id": "VH-060", "name": "Content Moderation", "priority": "P1", "phase": "phase9_safety", "effort": "L", "passes": false, "category": "safety"},
-    {"id": "VH-061", "name": "Email Notifications", "priority": "P1", "phase": "phase10_polish", "effort": "M", "passes": false, "category": "notifications"},
-    {"id": "VH-062", "name": "Settings Page", "priority": "P1", "phase": "phase10_polish", "effort": "L", "passes": false, "category": "frontend"},
-    {"id": "VH-063", "name": "Profile Editing", "priority": "P1", "phase": "phase10_polish", "effort": "M", "passes": false, "category": "frontend"},
-    {"id": "VH-064", "name": "E2E Testing", "priority": "P1", "phase": "phase10_polish", "effort": "L", "passes": false, "category": "testing"},
-    {"id": "VH-065", "name": "Production Deployment", "priority": "P0", "phase": "phase10_polish", "effort": "M", "passes": false, "category": "infrastructure"}
+    {
+      "id": "VH-001",
+      "name": "Next.js 15 Project Setup",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "infrastructure"
+    },
+    {
+      "id": "VH-002",
+      "name": "Tailwind CSS v4 with Brand Colors",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "design"
+    },
+    {
+      "id": "VH-003",
+      "name": "shadcn/ui Component Library",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "design"
+    },
+    {
+      "id": "VH-004",
+      "name": "Drizzle ORM Database Schema",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "database"
+    },
+    {
+      "id": "VH-005",
+      "name": "Landing Page",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-006",
+      "name": "Sign Up Page UI",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-007",
+      "name": "Sign In Page UI",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-008",
+      "name": "Onboarding Role Selection",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-009",
+      "name": "Invitee Profile Setup Wizard",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "L",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-010",
+      "name": "Requester Profile Setup Wizard",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-011",
+      "name": "Environment Configuration",
+      "priority": "P0",
+      "phase": "phase1_infrastructure",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "infrastructure"
+    },
+    {
+      "id": "VH-012",
+      "name": "Project Documentation",
+      "priority": "P1",
+      "phase": "phase1_infrastructure",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-20",
+      "category": "documentation"
+    },
+    {
+      "id": "VH-013",
+      "name": "NextAuth.js Integration",
+      "priority": "P0",
+      "phase": "phase2_auth",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "auth"
+    },
+    {
+      "id": "VH-014",
+      "name": "Session Management",
+      "priority": "P0",
+      "phase": "phase2_auth",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "auth"
+    },
+    {
+      "id": "VH-015",
+      "name": "Protected Routes Middleware",
+      "priority": "P0",
+      "phase": "phase2_auth",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "auth"
+    },
+    {
+      "id": "VH-016",
+      "name": "Password Reset Flow",
+      "priority": "P1",
+      "phase": "phase2_auth",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "auth"
+    },
+    {
+      "id": "VH-017",
+      "name": "Email Verification",
+      "priority": "P1",
+      "phase": "phase2_auth",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "auth"
+    },
+    {
+      "id": "VH-018",
+      "name": "Two-Factor Authentication",
+      "priority": "P2",
+      "phase": "phase2_auth",
+      "effort": "L",
+      "passes": false,
+      "category": "auth"
+    },
+    {
+      "id": "VH-019",
+      "name": "Database Connection Setup",
+      "priority": "P0",
+      "phase": "phase3_profiles",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "database"
+    },
+    {
+      "id": "VH-020",
+      "name": "Database Migrations",
+      "priority": "P0",
+      "phase": "phase3_profiles",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "database"
+    },
+    {
+      "id": "VH-021",
+      "name": "User CRUD Queries",
+      "priority": "P0",
+      "phase": "phase3_profiles",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "database"
+    },
+    {
+      "id": "VH-022",
+      "name": "Profile CRUD Queries",
+      "priority": "P0",
+      "phase": "phase3_profiles",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "database"
+    },
+    {
+      "id": "VH-023",
+      "name": "Profile API Routes",
+      "priority": "P0",
+      "phase": "phase3_profiles",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "api"
+    },
+    {
+      "id": "VH-024",
+      "name": "Zod Validation Schemas",
+      "priority": "P0",
+      "phase": "phase3_profiles",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "validation"
+    },
+    {
+      "id": "VH-025",
+      "name": "Photo Upload System",
+      "priority": "P1",
+      "phase": "phase3_profiles",
+      "effort": "L",
+      "passes": false,
+      "category": "storage"
+    },
+    {
+      "id": "VH-026",
+      "name": "Profile Data Persistence",
+      "priority": "P0",
+      "phase": "phase3_profiles",
+      "effort": "L",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "integration"
+    },
+    {
+      "id": "VH-027",
+      "name": "Availability Settings Storage",
+      "priority": "P1",
+      "phase": "phase3_profiles",
+      "effort": "M",
+      "passes": false,
+      "category": "database"
+    },
+    {
+      "id": "VH-028",
+      "name": "Browse Page Layout",
+      "priority": "P0",
+      "phase": "phase4_browse",
+      "effort": "L",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-029",
+      "name": "ProfileCard Component",
+      "priority": "P0",
+      "phase": "phase4_browse",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-030",
+      "name": "ProfileDetail Component",
+      "priority": "P0",
+      "phase": "phase4_browse",
+      "effort": "L",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "frontend"
+    },
+    {
+      "id": "VH-031",
+      "name": "Profile Search API",
+      "priority": "P0",
+      "phase": "phase4_browse",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-01-21",
+      "category": "api"
+    },
+    {
+      "id": "VH-032",
+      "name": "Browse Filters Component",
+      "priority": "P1",
+      "phase": "phase4_browse",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-033",
+      "name": "Infinite Scroll Pagination",
+      "priority": "P1",
+      "phase": "phase4_browse",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-034",
+      "name": "Stripe Client Setup",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "S",
+      "passes": false,
+      "category": "payments"
+    },
+    {
+      "id": "VH-035",
+      "name": "Payment Intent Creation",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false,
+      "category": "payments"
+    },
+    {
+      "id": "VH-036",
+      "name": "Stripe Webhook Handler",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false,
+      "category": "payments"
+    },
+    {
+      "id": "VH-037",
+      "name": "Refund Processing",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false,
+      "category": "payments"
+    },
+    {
+      "id": "VH-038",
+      "name": "Request Creation Page",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "L",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-039",
+      "name": "Screening Questions Form",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-040",
+      "name": "Payment Form Component",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-041",
+      "name": "Request API Routes",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false,
+      "category": "api"
+    },
+    {
+      "id": "VH-042",
+      "name": "Request Inbox Page",
+      "priority": "P0",
+      "phase": "phase6_management",
+      "effort": "L",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-043",
+      "name": "RequestCard Component",
+      "priority": "P0",
+      "phase": "phase6_management",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-044",
+      "name": "RequestDetail Component",
+      "priority": "P0",
+      "phase": "phase6_management",
+      "effort": "L",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-045",
+      "name": "Approve Request API",
+      "priority": "P0",
+      "phase": "phase6_management",
+      "effort": "M",
+      "passes": false,
+      "category": "api"
+    },
+    {
+      "id": "VH-046",
+      "name": "Decline Request API",
+      "priority": "P0",
+      "phase": "phase6_management",
+      "effort": "M",
+      "passes": false,
+      "category": "api"
+    },
+    {
+      "id": "VH-047",
+      "name": "Request Expiration Handling",
+      "priority": "P1",
+      "phase": "phase6_management",
+      "effort": "M",
+      "passes": false,
+      "category": "backend"
+    },
+    {
+      "id": "VH-048",
+      "name": "Chat List Page",
+      "priority": "P0",
+      "phase": "phase7_chat",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-049",
+      "name": "ChatWindow Component",
+      "priority": "P0",
+      "phase": "phase7_chat",
+      "effort": "L",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-050",
+      "name": "Real-Time Messaging",
+      "priority": "P0",
+      "phase": "phase7_chat",
+      "effort": "L",
+      "passes": false,
+      "category": "integration"
+    },
+    {
+      "id": "VH-051",
+      "name": "Chat API Routes",
+      "priority": "P0",
+      "phase": "phase7_chat",
+      "effort": "M",
+      "passes": false,
+      "category": "api"
+    },
+    {
+      "id": "VH-052",
+      "name": "Date Confirmation Flow",
+      "priority": "P1",
+      "phase": "phase7_chat",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-053",
+      "name": "Message Safety Features",
+      "priority": "P1",
+      "phase": "phase7_chat",
+      "effort": "M",
+      "passes": false,
+      "category": "safety"
+    },
+    {
+      "id": "VH-054",
+      "name": "Persona Client Setup",
+      "priority": "P0",
+      "phase": "phase8_verification",
+      "effort": "S",
+      "passes": false,
+      "category": "integration"
+    },
+    {
+      "id": "VH-055",
+      "name": "Create Inquiry API",
+      "priority": "P0",
+      "phase": "phase8_verification",
+      "effort": "M",
+      "passes": false,
+      "category": "api"
+    },
+    {
+      "id": "VH-056",
+      "name": "Persona Webhook Handler",
+      "priority": "P0",
+      "phase": "phase8_verification",
+      "effort": "M",
+      "passes": false,
+      "category": "api"
+    },
+    {
+      "id": "VH-057",
+      "name": "Verification Flow UI",
+      "priority": "P0",
+      "phase": "phase8_verification",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-058",
+      "name": "Report System",
+      "priority": "P0",
+      "phase": "phase9_safety",
+      "effort": "M",
+      "passes": false,
+      "category": "safety"
+    },
+    {
+      "id": "VH-059",
+      "name": "Block User Functionality",
+      "priority": "P0",
+      "phase": "phase9_safety",
+      "effort": "M",
+      "passes": false,
+      "category": "safety"
+    },
+    {
+      "id": "VH-060",
+      "name": "Content Moderation",
+      "priority": "P1",
+      "phase": "phase9_safety",
+      "effort": "L",
+      "passes": false,
+      "category": "safety"
+    },
+    {
+      "id": "VH-061",
+      "name": "Email Notifications",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false,
+      "category": "notifications"
+    },
+    {
+      "id": "VH-062",
+      "name": "Settings Page",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "L",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-063",
+      "name": "Profile Editing",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false,
+      "category": "frontend"
+    },
+    {
+      "id": "VH-064",
+      "name": "E2E Testing",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "L",
+      "passes": false,
+      "category": "testing"
+    },
+    {
+      "id": "VH-065",
+      "name": "Production Deployment",
+      "priority": "P0",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false,
+      "category": "infrastructure"
+    },
+    {
+      "id": "TRACK-001",
+      "name": "Tracking SDK Integration",
+      "description": "Install and initialize user event tracking SDK from ACD",
+      "category": "tracking",
+      "priority": "P1",
+      "passes": false
+    },
+    {
+      "id": "TRACK-002",
+      "name": "Acquisition Event Tracking",
+      "description": "Track landing_view, cta_click, pricing_view with UTM params",
+      "category": "tracking",
+      "priority": "P1",
+      "passes": false
+    },
+    {
+      "id": "TRACK-003",
+      "name": "Activation Event Tracking",
+      "description": "Track signup_start, login_success, activation_complete",
+      "category": "tracking",
+      "priority": "P1",
+      "passes": false
+    },
+    {
+      "id": "TRACK-004",
+      "name": "Core Value Event Tracking",
+      "description": "Track product-specific value events (created, completed, downloaded)",
+      "category": "tracking",
+      "priority": "P1",
+      "passes": false
+    },
+    {
+      "id": "TRACK-005",
+      "name": "Monetization Event Tracking",
+      "description": "Track checkout_started, purchase_completed, subscription events",
+      "category": "tracking",
+      "priority": "P1",
+      "passes": false
+    },
+    {
+      "id": "TRACK-006",
+      "name": "Retention Event Tracking",
+      "description": "Track return_session, returning_user product events",
+      "category": "tracking",
+      "priority": "P2",
+      "passes": false
+    },
+    {
+      "id": "TRACK-007",
+      "name": "Error & Performance Tracking",
+      "description": "Track errors, API failures, and Core Web Vitals",
+      "category": "tracking",
+      "priority": "P2",
+      "passes": false
+    },
+    {
+      "id": "TRACK-008",
+      "name": "User Identification",
+      "description": "Identify users on login with traits (email, plan, etc.)",
+      "category": "tracking",
+      "priority": "P1",
+      "passes": false
+    }
   ]
 }
