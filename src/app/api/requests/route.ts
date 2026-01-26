@@ -1,0 +1,100 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/session";
+import { createRequest, listUserRequests } from "@/db/queries/requests";
+import { createRequestSchema, listRequestsSchema } from "@/lib/validations/request";
+import { ZodError } from "zod";
+
+/**
+ * GET /api/requests
+ * List date requests for the authenticated user
+ * Query params: status, asInvitee, asRequester, limit, offset
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+
+    const listInput = {
+      status: searchParams.get("status") as "pending" | "approved" | "declined" | undefined,
+      asInvitee: searchParams.get("asInvitee") === "true",
+      asRequester: searchParams.get("asRequester") === "true",
+      limit: searchParams.get("limit")
+        ? parseInt(searchParams.get("limit")!)
+        : 50,
+      offset: searchParams.get("offset")
+        ? parseInt(searchParams.get("offset")!)
+        : 0,
+    };
+
+    const validatedInput = listRequestsSchema.parse(listInput);
+    const requests = await listUserRequests(user.id, validatedInput);
+
+    return NextResponse.json({ requests, count: requests.length });
+  } catch (error) {
+    console.error("Request listing error:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * POST /api/requests
+ * Create a new date request
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validatedData = createRequestSchema.parse(body);
+
+    // Prevent users from requesting themselves
+    if (validatedData.inviteeId === user.id) {
+      return NextResponse.json(
+        { error: "You cannot create a date request with yourself" },
+        { status: 400 }
+      );
+    }
+
+    const dateRequest = await createRequest({
+      ...validatedData,
+      requesterId: user.id,
+    });
+
+    return NextResponse.json(
+      { message: "Date request created successfully", request: dateRequest },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Request creation error:", error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Validation error", details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
