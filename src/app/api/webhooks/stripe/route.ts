@@ -13,6 +13,7 @@ import Stripe from "stripe";
  * - payment_intent.succeeded
  * - payment_intent.payment_failed
  * - payment_intent.canceled
+ * - charge.refunded
  */
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -66,6 +67,12 @@ export async function POST(request: NextRequest) {
       case "payment_intent.canceled": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         await handlePaymentIntentCanceled(paymentIntent);
+        break;
+      }
+
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        await handleChargeRefunded(charge);
         break;
       }
 
@@ -141,4 +148,43 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) 
     .where(eq(payments.stripePaymentIntentId, paymentIntent.id));
 
   console.log(`Marked payment as failed for canceled intent: ${paymentIntent.id}`);
+}
+
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  console.log(`Charge refunded: ${charge.id}`);
+
+  if (!charge.payment_intent) {
+    console.error("No payment intent associated with charge");
+    return;
+  }
+
+  const paymentIntentId = typeof charge.payment_intent === 'string'
+    ? charge.payment_intent
+    : charge.payment_intent.id;
+
+  // Update payment status
+  const [payment] = await db
+    .update(payments)
+    .set({
+      status: "refunded",
+      updatedAt: new Date(),
+    })
+    .where(eq(payments.stripePaymentIntentId, paymentIntentId))
+    .returning();
+
+  if (!payment) {
+    console.error(`Payment not found for payment intent: ${paymentIntentId}`);
+    return;
+  }
+
+  // Update date request deposit status
+  await db
+    .update(dateRequests)
+    .set({
+      depositStatus: "refunded",
+      updatedAt: new Date(),
+    })
+    .where(eq(dateRequests.id, payment.requestId));
+
+  console.log(`Updated payment and request for refunded charge: ${charge.id}`);
 }
