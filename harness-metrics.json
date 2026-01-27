@@ -2,13 +2,13 @@
   "totalSessions": 193,
   "successfulSessions": 17,
   "failedSessions": 176,
-  "totalTokens": 1274000,
+  "totalTokens": 1294114,
   "totalCostUsd": 0,
   "rateLimitHits": 173,
   "authErrors": 2,
   "consecutiveErrors": 0,
-  "lastSessionTime": "2026-01-27T01:00:00.000Z",
-  "featuresCompletedThisRun": 1,
-  "startingFeatures": 46,
+  "lastSessionTime": "2026-01-27T01:23:54.118Z",
+  "featuresCompletedThisRun": 0,
+  "startingFeatures": 0,
   "avgSessionDuration": 0
 }
