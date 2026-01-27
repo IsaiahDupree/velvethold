@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Inbox, Heart, DollarSign, Calendar, User } from "lucide-react";
+import { Inbox, Heart } from "lucide-react";
+import { RequestCard } from "@/components/RequestCard";
 
 export default async function InboxPage() {
   const session = await requireAuth();
@@ -119,55 +120,12 @@ export default async function InboxPage() {
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {pendingReceived.map(({ request, requesterProfile, requesterUser }) => (
-                <Card key={request.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                          {requesterProfile?.displayName ? (
-                            <span className="text-lg font-bold">
-                              {requesterProfile.displayName.charAt(0).toUpperCase()}
-                            </span>
-                          ) : (
-                            <User className="h-6 w-6 text-primary" />
-                          )}
-                        </div>
-                        <div>
-                          <CardTitle>
-                            Request from {requesterProfile?.displayName || "Unknown"}
-                          </CardTitle>
-                          <CardDescription>
-                            Received{" "}
-                            {new Date(request.createdAt).toLocaleDateString()}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Badge variant="secondary">Pending</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="text-sm text-muted-foreground">
-                      <p className="line-clamp-2">{request.introMessage}</p>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <span>${(request.depositAmount / 100).toFixed(2)} deposit</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>
-                          {request.slotId ? "Specific time slot" : "Flexible timing"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Button className="w-full" asChild>
-                      <Link href={`/inbox/${request.id}`}>View Request Details</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <RequestCard
+                  key={request.id}
+                  request={request}
+                  otherProfile={requesterProfile}
+                  variant="received"
+                />
               ))}
             </div>
           )}
@@ -184,47 +142,12 @@ export default async function InboxPage() {
 
             <div className="grid grid-cols-1 gap-4">
               {approvedReceived.map(({ request, requesterProfile, requesterUser }) => (
-                <Card key={request.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                          {requesterProfile?.displayName ? (
-                            <span className="text-lg font-bold">
-                              {requesterProfile.displayName.charAt(0).toUpperCase()}
-                            </span>
-                          ) : (
-                            <User className="h-6 w-6 text-primary" />
-                          )}
-                        </div>
-                        <div>
-                          <CardTitle>
-                            Request from {requesterProfile?.displayName || "Unknown"}
-                          </CardTitle>
-                          <CardDescription>
-                            Approved{" "}
-                            {new Date(request.updatedAt).toLocaleDateString()}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Badge variant="default" className="bg-green-500">
-                        Approved
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <span>${(request.depositAmount / 100).toFixed(2)} deposit</span>
-                      </div>
-                    </div>
-
-                    <Button className="w-full" asChild>
-                      <Link href={`/inbox/${request.id}`}>View Details</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <RequestCard
+                  key={request.id}
+                  request={request}
+                  otherProfile={requesterProfile}
+                  variant="received"
+                />
               ))}
             </div>
           </div>
@@ -242,56 +165,12 @@ export default async function InboxPage() {
 
             <div className="grid grid-cols-1 gap-4">
               {sentRequests.map(({ request, inviteeProfile, inviteeUser }) => (
-                <Card key={request.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                          <span className="text-lg font-bold">
-                            {inviteeProfile?.displayName?.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <CardTitle>
-                            Request to {inviteeProfile?.displayName || "Unknown"}
-                          </CardTitle>
-                          <CardDescription>
-                            Sent {new Date(request.createdAt).toLocaleDateString()}
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Badge
-                        variant={
-                          request.approvalStatus === "pending"
-                            ? "secondary"
-                            : request.approvalStatus === "approved"
-                            ? "default"
-                            : "destructive"
-                        }
-                      >
-                        {request.approvalStatus.charAt(0).toUpperCase() +
-                          request.approvalStatus.slice(1)}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <span>${(request.depositAmount / 100).toFixed(2)} deposit</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-muted-foreground">
-                          Status: {request.depositStatus}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Button className="w-full" variant="outline" asChild>
-                      <Link href={`/inbox/${request.id}`}>View Details</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <RequestCard
+                  key={request.id}
+                  request={request}
+                  otherProfile={inviteeProfile}
+                  variant="sent"
+                />
               ))}
             </div>
           </div>
