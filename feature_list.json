@@ -468,7 +468,8 @@
       "priority": "P0",
       "phase": "phase6_management",
       "effort": "M",
-      "passes": false,
+      "passes": true,
+      "completedAt": "2026-01-27",
       "category": "api"
     },
     {
