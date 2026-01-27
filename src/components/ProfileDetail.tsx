@@ -1,12 +1,17 @@
+"use client";
+
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { MapPin, Heart, Calendar, Clock, Shield, AlertCircle } from "lucide-react";
+import { MapPin, Heart, Calendar, Clock, Shield, AlertCircle, Flag } from "lucide-react";
+import { ReportModal } from "@/components/ReportModal";
 
 export interface ProfileDetailProps {
   profile: {
     id: string;
+    userId?: string;
     displayName: string;
     age: number;
     city: string;
@@ -21,6 +26,7 @@ export interface ProfileDetailProps {
     createdAt?: Date | null;
   };
   showRequestButton?: boolean;
+  showReportButton?: boolean;
   onRequestDate?: () => void;
 }
 
@@ -28,7 +34,8 @@ function isRecord(value: unknown): value is Record<string, any> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export function ProfileDetail({ profile, showRequestButton = true, onRequestDate }: ProfileDetailProps) {
+export function ProfileDetail({ profile, showRequestButton = true, showReportButton = true, onRequestDate }: ProfileDetailProps) {
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const datePreferences = isRecord(profile.datePreferences) ? profile.datePreferences : null;
   const screeningQuestions = isRecord(profile.screeningQuestions) ? profile.screeningQuestions : null;
 
@@ -74,12 +81,25 @@ export function ProfileDetail({ profile, showRequestButton = true, onRequestDate
                 </div>
               )}
 
-              {/* Request Button */}
-              {showRequestButton && onRequestDate && (
-                <Button size="lg" className="w-full md:w-auto" onClick={onRequestDate}>
-                  Request a Date
-                </Button>
-              )}
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                {showRequestButton && onRequestDate && (
+                  <Button size="lg" className="w-full md:w-auto" onClick={onRequestDate}>
+                    Request a Date
+                  </Button>
+                )}
+                {showReportButton && profile.userId && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="w-full md:w-auto"
+                    onClick={() => setIsReportModalOpen(true)}
+                  >
+                    <Flag className="h-4 w-4 mr-2" />
+                    Report
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -193,6 +213,18 @@ export function ProfileDetail({ profile, showRequestButton = true, onRequestDate
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Report Modal */}
+      {profile.userId && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          reportedUserId={profile.userId}
+          reportedUserName={profile.displayName}
+          context="profile"
+          contextId={profile.id}
+        />
       )}
     </div>
   );

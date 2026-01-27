@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/lib/auth-config";
+import { auth } from "@/lib/auth";
 import { pusherServer } from "@/lib/pusher";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authConfig);
+    const session = await auth();
 
     if (!session || !session.user) {
       return NextResponse.json(

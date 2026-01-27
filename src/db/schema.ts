@@ -9,6 +9,8 @@ export const depositStatusEnum = pgEnum("deposit_status", ["pending", "held", "r
 export const approvalStatusEnum = pgEnum("approval_status", ["pending", "approved", "declined"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "succeeded", "failed", "refunded"]);
 export const visibilityLevelEnum = pgEnum("visibility_level", ["public", "verified", "paid", "approved"]);
+export const reportTypeEnum = pgEnum("report_type", ["harassment", "inappropriate_behavior", "fake_profile", "scam", "offensive_content", "other"]);
+export const reportStatusEnum = pgEnum("report_status", ["pending", "under_review", "resolved", "dismissed"]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -115,6 +117,22 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const reports = pgTable("reports", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  reporterId: uuid("reporter_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  reportedUserId: uuid("reported_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  reportType: reportTypeEnum("report_type").notNull(),
+  description: text("description").notNull(),
+  context: varchar("context", { length: 50 }),
+  contextId: uuid("context_id"),
+  status: reportStatusEnum("status").notNull().default("pending"),
+  reviewedBy: uuid("reviewed_by").references(() => users.id),
+  reviewNotes: text("review_notes"),
+  actionTaken: varchar("action_taken", { length: 50 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, {
     fields: [users.id],
@@ -125,6 +143,9 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   messages: many(messages),
   passwordResetTokens: many(passwordResetTokens),
   emailVerificationTokens: many(emailVerificationTokens),
+  submittedReports: many(reports, { relationName: "reporter" }),
+  receivedReports: many(reports, { relationName: "reported" }),
+  reviewedReports: many(reports, { relationName: "reviewer" }),
 }));
 
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
@@ -185,5 +206,23 @@ export const emailVerificationTokensRelations = relations(emailVerificationToken
   user: one(users, {
     fields: [emailVerificationTokens.userId],
     references: [users.id],
+  }),
+}));
+
+export const reportsRelations = relations(reports, ({ one }) => ({
+  reporter: one(users, {
+    fields: [reports.reporterId],
+    references: [users.id],
+    relationName: "reporter",
+  }),
+  reportedUser: one(users, {
+    fields: [reports.reportedUserId],
+    references: [users.id],
+    relationName: "reported",
+  }),
+  reviewer: one(users, {
+    fields: [reports.reviewedBy],
+    references: [users.id],
+    relationName: "reviewer",
   }),
 }));
