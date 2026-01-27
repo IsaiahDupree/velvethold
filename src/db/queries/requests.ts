@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { dateRequests, profiles, users } from "@/db/schema";
 import { eq, and, or, desc } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import type { CreateRequestInput } from "@/lib/validations/request";
 
 export async function createRequest(data: CreateRequestInput & { requesterId: string }) {
@@ -46,15 +47,25 @@ export async function listUserRequests(userId: string, options: {
 }) {
   const { asInvitee, asRequester, status, limit = 50, offset = 0 } = options;
 
+  // Create aliases for invitee and requester tables
+  const inviteeUser = alias(users, "invitee_user");
+  const requesterUser = alias(users, "requester_user");
+  const inviteeProfile = alias(profiles, "invitee_profile");
+  const requesterProfile = alias(profiles, "requester_profile");
+
   let query = db
     .select({
       request: dateRequests,
-      inviteeProfile: profiles,
-      inviteeUser: users,
+      inviteeProfile: inviteeProfile,
+      inviteeUser: inviteeUser,
+      requesterProfile: requesterProfile,
+      requesterUser: requesterUser,
     })
     .from(dateRequests)
-    .leftJoin(users, eq(dateRequests.inviteeId, users.id))
-    .leftJoin(profiles, eq(users.id, profiles.userId))
+    .leftJoin(inviteeUser, eq(dateRequests.inviteeId, inviteeUser.id))
+    .leftJoin(inviteeProfile, eq(inviteeUser.id, inviteeProfile.userId))
+    .leftJoin(requesterUser, eq(dateRequests.requesterId, requesterUser.id))
+    .leftJoin(requesterProfile, eq(requesterUser.id, requesterProfile.userId))
     .orderBy(desc(dateRequests.createdAt))
     .limit(limit)
     .offset(offset);
