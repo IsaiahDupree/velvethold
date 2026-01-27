@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import PhotoUpload from "@/components/photos/PhotoUpload";
+import { AvailabilityRulesEditor, AvailabilityRule } from "@/components/AvailabilityRulesEditor";
 
 const STEPS = [
   { id: 1, title: "Basic Info", description: "Tell us about yourself" },
@@ -39,6 +40,7 @@ export default function InviteeOnboardingPage() {
     availabilityVisibility: "verified",
   });
   const [photos, setPhotos] = useState<any[]>([]);
+  const [availabilityRules, setAvailabilityRules] = useState<AvailabilityRule[]>([]);
 
   const handleNext = () => {
     // Validate photos on step 2
@@ -97,6 +99,34 @@ export default function InviteeOnboardingPage() {
           throw new Error(errorMessages);
         }
         throw new Error(data.error || "Failed to create profile");
+      }
+
+      // Save availability rules if any were created
+      if (availabilityRules.length > 0 && data.id) {
+        try {
+          const rulesResponse = await fetch("/api/availability/rules", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              profileId: data.id,
+              rules: availabilityRules.map(rule => ({
+                dayOfWeek: rule.dayOfWeek,
+                startTime: rule.startTime,
+                endTime: rule.endTime,
+                active: rule.active,
+              })),
+            }),
+          });
+
+          if (!rulesResponse.ok) {
+            console.error("Failed to save availability rules, but profile was created");
+          }
+        } catch (rulesError) {
+          console.error("Error saving availability rules:", rulesError);
+          // Don't fail the entire onboarding if availability rules fail
+        }
       }
 
       // Success - redirect to dashboard or next step
@@ -366,42 +396,44 @@ export default function InviteeOnboardingPage() {
             )}
 
             {currentStep === 6 && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Who can see your availability?</Label>
-                  <div className="space-y-2">
-                    {[
-                      { value: "public", label: "Public", desc: "Anyone can see (not recommended)" },
-                      { value: "verified", label: "Verified Users", desc: "Only verified users" },
-                      { value: "paid", label: "Paid Requesters", desc: "Only after deposit paid" },
-                      { value: "approved", label: "Approved Only", desc: "Only matches you approve" },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => updateFormData("availabilityVisibility", option.value)}
-                        className={`w-full p-4 rounded-lg border-2 transition-colors text-left ${
-                          formData.availabilityVisibility === option.value
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                      >
-                        <div className="font-semibold">{option.label}</div>
-                        <div className="text-sm text-muted-foreground">{option.desc}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              <div className="space-y-6">
+                {/* Availability Rules Editor */}
+                <AvailabilityRulesEditor
+                  initialRules={availabilityRules}
+                  onChange={setAvailabilityRules}
+                />
 
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <p className="text-sm font-semibold mb-2">Next Steps:</p>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Complete identity verification</li>
-                    <li>• Set up your availability calendar</li>
-                    <li>• Upload profile photos</li>
-                    <li>• Review and publish your profile</li>
-                  </ul>
-                </div>
+                {/* Visibility Settings */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Visibility Settings</CardTitle>
+                    <CardDescription>Who can see your availability schedule?</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {[
+                        { value: "public", label: "Public", desc: "Anyone can see (not recommended)" },
+                        { value: "verified", label: "Verified Users", desc: "Only verified users" },
+                        { value: "paid", label: "Paid Requesters", desc: "Only after deposit paid" },
+                        { value: "approved", label: "Approved Only", desc: "Only matches you approve" },
+                      ].map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => updateFormData("availabilityVisibility", option.value)}
+                          className={`w-full p-4 rounded-lg border-2 transition-colors text-left ${
+                            formData.availabilityVisibility === option.value
+                              ? "border-primary bg-primary/10"
+                              : "border-border hover:border-primary/50"
+                          }`}
+                        >
+                          <div className="font-semibold">{option.label}</div>
+                          <div className="text-sm text-muted-foreground">{option.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 
