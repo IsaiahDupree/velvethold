@@ -43,6 +43,13 @@
       "when": 1769556574206,
       "tag": "0005_dry_lucky_pierre",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1769557289489,
+      "tag": "0006_parched_master_chief",
+      "breakpoints": true
     }
   ]
 }

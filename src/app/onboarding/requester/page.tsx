@@ -9,11 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import PhotoUpload from "@/components/photos/PhotoUpload";
 
 const STEPS = [
   { id: 1, title: "Basic Info", description: "Tell us about yourself" },
-  { id: 2, title: "Preferences", description: "What you're looking for" },
-  { id: 3, title: "Verification", description: "Complete your profile" },
+  { id: 2, title: "Photos", description: "Upload profile photos" },
+  { id: 3, title: "Preferences", description: "What you're looking for" },
+  { id: 4, title: "Verification", description: "Complete your profile" },
 ];
 
 export default function RequesterOnboardingPage() {
@@ -31,8 +33,16 @@ export default function RequesterOnboardingPage() {
     employment: "",
     education: "",
   });
+  const [photos, setPhotos] = useState<any[]>([]);
 
   const handleNext = () => {
+    // Validate photos on step 2
+    if (currentStep === 2 && photos.length < 2) {
+      setError("Please upload at least 2 photos to continue");
+      return;
+    }
+
+    setError(null);
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
     }
@@ -210,6 +220,17 @@ export default function RequesterOnboardingPage() {
 
             {currentStep === 2 && (
               <div className="space-y-4">
+                <PhotoUpload
+                  initialPhotos={photos}
+                  maxPhotos={6}
+                  minPhotos={2}
+                  onPhotosChange={setPhotos}
+                />
+              </div>
+            )}
+
+            {currentStep === 3 && (
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>What are you looking for? *</Label>
                   <div className="grid grid-cols-3 gap-3">
@@ -273,7 +294,7 @@ export default function RequesterOnboardingPage() {
               </div>
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 4 && (
               <div className="space-y-4">
                 <div className="bg-muted/50 p-6 rounded-lg space-y-4">
                   <h3 className="font-semibold text-lg">Complete Your Profile</h3>

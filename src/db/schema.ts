@@ -141,6 +141,16 @@ export const blocks = pgTable("blocks", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+export const photos = pgTable("photos", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  publicId: varchar("public_id", { length: 255 }).notNull(),
+  isPrimary: boolean("is_primary").notNull().default(false),
+  order: integer("order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, {
     fields: [users.id],
@@ -156,6 +166,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   reviewedReports: many(reports, { relationName: "reviewer" }),
   blockedUsers: many(blocks, { relationName: "blocker" }),
   blockedByUsers: many(blocks, { relationName: "blocked" }),
+  photos: many(photos),
 }));
 
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
@@ -247,5 +258,12 @@ export const blocksRelations = relations(blocks, ({ one }) => ({
     fields: [blocks.blockedUserId],
     references: [users.id],
     relationName: "blocked",
+  }),
+}));
+
+export const photosRelations = relations(photos, ({ one }) => ({
+  user: one(users, {
+    fields: [photos.userId],
+    references: [users.id],
   }),
 }));

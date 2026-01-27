@@ -4,7 +4,7 @@ import { removeBlock, isUserBlocked } from "@/db/queries/blocks";
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await auth();
@@ -13,7 +13,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { userId } = params;
+    const { userId } = await params;
 
     // Check if the user is actually blocked
     const isBlocked = await isUserBlocked(session.user.id, userId);
@@ -45,7 +45,7 @@ export async function DELETE(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await auth();
@@ -54,7 +54,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { userId } = params;
+    const { userId } = await params;
 
     const isBlocked = await isUserBlocked(session.user.id, userId);
 

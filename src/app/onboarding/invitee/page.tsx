@@ -9,13 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import PhotoUpload from "@/components/photos/PhotoUpload";
 
 const STEPS = [
   { id: 1, title: "Basic Info", description: "Tell us about yourself" },
-  { id: 2, title: "Preferences", description: "What you're looking for" },
-  { id: 3, title: "Screening", description: "Set your questions" },
-  { id: 4, title: "Terms", description: "Deposit & policies" },
-  { id: 5, title: "Availability", description: "When you're free" },
+  { id: 2, title: "Photos", description: "Upload profile photos" },
+  { id: 3, title: "Preferences", description: "What you're looking for" },
+  { id: 4, title: "Screening", description: "Set your questions" },
+  { id: 5, title: "Terms", description: "Deposit & policies" },
+  { id: 6, title: "Availability", description: "When you're free" },
 ];
 
 export default function InviteeOnboardingPage() {
@@ -36,8 +38,16 @@ export default function InviteeOnboardingPage() {
     cancellationPolicy: "",
     availabilityVisibility: "verified",
   });
+  const [photos, setPhotos] = useState<any[]>([]);
 
   const handleNext = () => {
+    // Validate photos on step 2
+    if (currentStep === 2 && photos.length < 2) {
+      setError("Please upload at least 2 photos to continue");
+      return;
+    }
+
+    setError(null);
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
     }
@@ -219,6 +229,17 @@ export default function InviteeOnboardingPage() {
 
             {currentStep === 2 && (
               <div className="space-y-4">
+                <PhotoUpload
+                  initialPhotos={photos}
+                  maxPhotos={6}
+                  minPhotos={2}
+                  onPhotosChange={setPhotos}
+                />
+              </div>
+            )}
+
+            {currentStep === 3 && (
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>What are you looking for? *</Label>
                   <div className="grid grid-cols-3 gap-3">
@@ -272,7 +293,7 @@ export default function InviteeOnboardingPage() {
               </div>
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 4 && (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
                   Set 3 screening questions that requesters must answer when sending you a date request.
@@ -302,7 +323,7 @@ export default function InviteeOnboardingPage() {
               </div>
             )}
 
-            {currentStep === 4 && (
+            {currentStep === 5 && (
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="depositAmount">Deposit Amount (USD) *</Label>
@@ -344,7 +365,7 @@ export default function InviteeOnboardingPage() {
               </div>
             )}
 
-            {currentStep === 5 && (
+            {currentStep === 6 && (
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Who can see your availability?</Label>
