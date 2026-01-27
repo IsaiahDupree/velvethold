@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { messages } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
+import { pusherServer, getChatChannel, PUSHER_EVENTS } from "@/lib/pusher";
 
 const messageSchema = z.object({
   content: z.string().min(1).max(5000),
@@ -96,6 +97,18 @@ export async function POST(
 
     // Create the message
     const message = await createMessage(chatId, session.user.id, content);
+
+    // Broadcast the message to all chat participants via Pusher
+    try {
+      await pusherServer.trigger(
+        getChatChannel(chatId),
+        PUSHER_EVENTS.NEW_MESSAGE,
+        message
+      );
+    } catch (pusherError) {
+      console.error("Error broadcasting message via Pusher:", pusherError);
+      // Don't fail the request if Pusher fails - message is still saved
+    }
 
     return NextResponse.json({ message }, { status: 201 });
   } catch (error) {

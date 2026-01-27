@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { getPusherClient, getChatChannel, PUSHER_EVENTS } from "@/lib/pusher";
+import type { Channel } from "pusher-js";
 
 interface Message {
   id: string;
@@ -31,8 +33,11 @@ export function ChatWindow({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const channelRef = useRef<Channel | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -42,6 +47,47 @@ export function ChatWindow({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Set up Pusher real-time connection
+  useEffect(() => {
+    const pusher = getPusherClient();
+    const channel = pusher.subscribe(getChatChannel(chatId));
+    channelRef.current = channel;
+
+    // Listen for new messages
+    channel.bind(PUSHER_EVENTS.NEW_MESSAGE, (newMsg: Message) => {
+      // Only add message if it's not from current user (they already see it locally)
+      if (newMsg.senderId !== currentUserId) {
+        setMessages((prev) => {
+          // Avoid duplicates
+          if (prev.some((m) => m.id === newMsg.id)) {
+            return prev;
+          }
+          return [...prev, newMsg];
+        });
+      }
+    });
+
+    // Listen for typing indicators
+    channel.bind(PUSHER_EVENTS.TYPING_START, (data: { userId: string }) => {
+      if (data.userId !== currentUserId) {
+        setIsTyping(true);
+      }
+    });
+
+    channel.bind(PUSHER_EVENTS.TYPING_STOP, (data: { userId: string }) => {
+      if (data.userId !== currentUserId) {
+        setIsTyping(false);
+      }
+    });
+
+    // Cleanup on unmount
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe(getChatChannel(chatId));
+      pusher.disconnect();
+    };
+  }, [chatId, currentUserId]);
 
   // Handle sending a message
   const handleSendMessage = async () => {
@@ -81,10 +127,52 @@ export function ChatWindow({
     }
   };
 
+  // Handle typing indicators
+  const handleTypingStart = () => {
+    if (channelRef.current) {
+      channelRef.current.trigger("client-typing-start", {
+        userId: currentUserId,
+      });
+
+      // Clear existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Stop typing after 3 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        handleTypingStop();
+      }, 3000);
+    }
+  };
+
+  const handleTypingStop = () => {
+    if (channelRef.current) {
+      channelRef.current.trigger("client-typing-stop", {
+        userId: currentUserId,
+      });
+    }
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = null;
+    }
+  };
+
+  // Handle text input change with typing indicator
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setNewMessage(e.target.value);
+    if (e.target.value.trim()) {
+      handleTypingStart();
+    } else {
+      handleTypingStop();
+    }
+  };
+
   // Handle Enter key to send (Shift+Enter for new line)
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      handleTypingStop();
       handleSendMessage();
     }
   };
@@ -140,6 +228,15 @@ export function ChatWindow({
               );
             })}
             <div ref={messagesEndRef} />
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="bg-muted rounded-lg p-4 shadow-sm">
+                  <p className="text-sm text-muted-foreground italic">
+                    {otherUserName} is typing...
+                  </p>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -151,7 +248,7 @@ export function ChatWindow({
             <Textarea
               ref={textareaRef}
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={handleTextChange}
               onKeyDown={handleKeyDown}
               placeholder="Type a message..."
               className="min-h-[60px] max-h-[200px] resize-none"
