@@ -133,6 +133,14 @@ export const reports = pgTable("reports", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const blocks = pgTable("blocks", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  blockerId: uuid("blocker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  blockedUserId: uuid("blocked_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  reason: text("reason"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const usersRelations = relations(users, ({ one, many }) => ({
   profile: one(profiles, {
     fields: [users.id],
@@ -146,6 +154,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   submittedReports: many(reports, { relationName: "reporter" }),
   receivedReports: many(reports, { relationName: "reported" }),
   reviewedReports: many(reports, { relationName: "reviewer" }),
+  blockedUsers: many(blocks, { relationName: "blocker" }),
+  blockedByUsers: many(blocks, { relationName: "blocked" }),
 }));
 
 export const profilesRelations = relations(profiles, ({ one, many }) => ({
@@ -224,5 +234,18 @@ export const reportsRelations = relations(reports, ({ one }) => ({
     fields: [reports.reviewedBy],
     references: [users.id],
     relationName: "reviewer",
+  }),
+}));
+
+export const blocksRelations = relations(blocks, ({ one }) => ({
+  blocker: one(users, {
+    fields: [blocks.blockerId],
+    references: [users.id],
+    relationName: "blocker",
+  }),
+  blockedUser: one(users, {
+    fields: [blocks.blockedUserId],
+    references: [users.id],
+    relationName: "blocked",
   }),
 }));

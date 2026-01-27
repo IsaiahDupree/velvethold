@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MapPin, Heart, Calendar, Clock, Shield, AlertCircle, Flag } from "lucide-react";
 import { ReportModal } from "@/components/ReportModal";
+import { BlockButton } from "@/components/BlockButton";
 
 export interface ProfileDetailProps {
   profile: {
@@ -27,6 +28,7 @@ export interface ProfileDetailProps {
   };
   showRequestButton?: boolean;
   showReportButton?: boolean;
+  showBlockButton?: boolean;
   onRequestDate?: () => void;
 }
 
@@ -34,7 +36,7 @@ function isRecord(value: unknown): value is Record<string, any> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export function ProfileDetail({ profile, showRequestButton = true, showReportButton = true, onRequestDate }: ProfileDetailProps) {
+export function ProfileDetail({ profile, showRequestButton = true, showReportButton = true, showBlockButton = true, onRequestDate }: ProfileDetailProps) {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const datePreferences = isRecord(profile.datePreferences) ? profile.datePreferences : null;
   const screeningQuestions = isRecord(profile.screeningQuestions) ? profile.screeningQuestions : null;
@@ -82,7 +84,7 @@ export function ProfileDetail({ profile, showRequestButton = true, showReportBut
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {showRequestButton && onRequestDate && (
                   <Button size="lg" className="w-full md:w-auto" onClick={onRequestDate}>
                     Request a Date
@@ -98,6 +100,15 @@ export function ProfileDetail({ profile, showRequestButton = true, showReportBut
                     <Flag className="h-4 w-4 mr-2" />
                     Report
                   </Button>
+                )}
+                {showBlockButton && profile.userId && (
+                  <BlockButton
+                    userId={profile.userId}
+                    userName={profile.displayName}
+                    variant="outline"
+                    size="lg"
+                    className="w-full md:w-auto"
+                  />
                 )}
               </div>
             </div>

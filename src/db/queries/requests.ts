@@ -3,8 +3,16 @@ import { dateRequests, profiles, users } from "@/db/schema";
 import { eq, and, or, desc } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { CreateRequestInput } from "@/lib/validations/request";
+import { isEitherUserBlocked } from "./blocks";
 
 export async function createRequest(data: CreateRequestInput & { requesterId: string }) {
+  // Check if either user has blocked the other
+  const blocked = await isEitherUserBlocked(data.requesterId, data.inviteeId);
+
+  if (blocked) {
+    throw new Error("Cannot create request: user is blocked");
+  }
+
   const [request] = await db
     .insert(dateRequests)
     .values({

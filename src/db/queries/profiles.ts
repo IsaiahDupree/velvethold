@@ -1,6 +1,6 @@
 import { db } from "@/db";
-import { profiles } from "@/db/schema";
-import { eq, and, or, sql, ilike, gte, lte } from "drizzle-orm";
+import { profiles, blocks } from "@/db/schema";
+import { eq, and, or, sql, ilike, gte, lte, notInArray } from "drizzle-orm";
 
 export interface CreateProfileInput {
   userId: string;
@@ -39,6 +39,7 @@ export interface SearchProfilesInput {
   maxAge?: number;
   limit?: number;
   offset?: number;
+  excludeUserId?: string; // Current user ID to exclude blocked users
 }
 
 /**
@@ -135,10 +136,10 @@ export async function deleteProfileByUserId(userId: string) {
 }
 
 /**
- * Search profiles with filters
+ * Search profiles with filters (excludes blocked users)
  */
 export async function searchProfiles(input: SearchProfilesInput = {}) {
-  const { query, intent, city, minAge, maxAge, limit = 50, offset = 0 } = input;
+  const { query, intent, city, minAge, maxAge, limit = 50, offset = 0, excludeUserId } = input;
 
   const conditions = [];
 
@@ -165,6 +166,32 @@ export async function searchProfiles(input: SearchProfilesInput = {}) {
 
   if (maxAge !== undefined) {
     conditions.push(lte(profiles.age, maxAge));
+  }
+
+  // Exclude blocked users if current user ID is provided
+  if (excludeUserId) {
+    // Get all blocked user IDs (both directions)
+    const blockedUsers = await db
+      .select({ userId: blocks.blockedUserId })
+      .from(blocks)
+      .where(eq(blocks.blockerId, excludeUserId));
+
+    const blockedByUsers = await db
+      .select({ userId: blocks.blockerId })
+      .from(blocks)
+      .where(eq(blocks.blockedUserId, excludeUserId));
+
+    const blockedUserIds = [
+      ...blockedUsers.map((b) => b.userId),
+      ...blockedByUsers.map((b) => b.userId),
+    ];
+
+    if (blockedUserIds.length > 0) {
+      conditions.push(notInArray(profiles.userId, blockedUserIds));
+    }
+
+    // Also exclude own profile
+    conditions.push(sql`${profiles.userId} != ${excludeUserId}`);
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;

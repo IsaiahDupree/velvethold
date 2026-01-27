@@ -134,6 +134,7 @@ export const searchProfilesSchema = z.object({
     .int("Offset must be a whole number")
     .min(0, "Offset cannot be negative")
     .optional(),
+  excludeUserId: z.string().uuid("Invalid user ID").optional(),
 });
 
 export type SearchProfilesInput = z.infer<typeof searchProfilesSchema>;
