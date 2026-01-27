@@ -487,7 +487,8 @@
       "priority": "P0",
       "phase": "phase7_chat",
       "effort": "M",
-      "passes": false,
+      "passes": true,
+      "completedAt": "2026-01-27",
       "category": "frontend"
     },
     {
