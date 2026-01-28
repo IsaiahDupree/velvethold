@@ -11,8 +11,8 @@ const timeSchema = z.string().regex(timeRegex, {
   message: "Time must be in HH:MM format (e.g., 09:00, 14:30)",
 });
 
-// Slot status enum
-const slotStatusSchema = z.enum(["open", "booked", "blocked"]);
+// Slot status enum (matches database schema)
+const slotStatusSchema = z.enum(["open", "requested", "booked", "completed"]);
 
 // ===========================
 // AVAILABILITY RULES SCHEMAS

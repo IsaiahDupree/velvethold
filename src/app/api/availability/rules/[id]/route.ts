@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import {
   getAvailabilityRuleById,
   updateAvailabilityRule,
@@ -15,15 +14,16 @@ import { updateAvailabilityRuleSchema } from "@/lib/validations/availability";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rule = await getAvailabilityRuleById(params.id);
+    const { id } = await params;
+    const rule = await getAvailabilityRuleById(id);
 
     if (!rule) {
       return NextResponse.json(
@@ -57,15 +57,16 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rule = await getAvailabilityRuleById(params.id);
+    const { id } = await params;
+    const rule = await getAvailabilityRuleById(id);
 
     if (!rule) {
       return NextResponse.json(
@@ -86,7 +87,7 @@ export async function PATCH(
     const body = await request.json();
     const validated = updateAvailabilityRuleSchema.parse(body);
 
-    const updated = await updateAvailabilityRule(params.id, validated);
+    const updated = await updateAvailabilityRule(id, validated);
 
     return NextResponse.json(updated);
   } catch (error) {
@@ -110,15 +111,16 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rule = await getAvailabilityRuleById(params.id);
+    const { id } = await params;
+    const rule = await getAvailabilityRuleById(id);
 
     if (!rule) {
       return NextResponse.json(
@@ -136,7 +138,7 @@ export async function DELETE(
       );
     }
 
-    await deleteAvailabilityRule(params.id);
+    await deleteAvailabilityRule(id);
 
     return NextResponse.json({
       message: "Availability rule deleted successfully"

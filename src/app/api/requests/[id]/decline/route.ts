@@ -85,7 +85,11 @@ export async function POST(
       .limit(1);
 
     if (requester) {
-      await sendRequestDeclinedEmail(requester.email, requester.name, user.name);
+      await sendRequestDeclinedEmail(
+        requester.email,
+        requester.name,
+        user.name || "Unknown"
+      );
     }
 
     return NextResponse.json({

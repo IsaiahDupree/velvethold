@@ -85,7 +85,11 @@ export async function POST(
       .limit(1);
 
     if (requester) {
-      await sendRequestApprovedEmail(requester.email, requester.name, user.name);
+      await sendRequestApprovedEmail(
+        requester.email,
+        requester.name,
+        user.name || "Unknown"
+      );
     }
 
     return NextResponse.json({

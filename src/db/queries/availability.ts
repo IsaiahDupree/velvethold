@@ -143,13 +143,13 @@ export interface CreateAvailabilitySlotInput {
   profileId: string;
   startDatetime: Date;
   endDatetime: Date;
-  status?: "open" | "booked" | "blocked";
+  status?: "open" | "requested" | "booked" | "completed";
 }
 
 export interface UpdateAvailabilitySlotInput {
   startDatetime?: Date;
   endDatetime?: Date;
-  status?: "open" | "booked" | "blocked";
+  status?: "open" | "requested" | "booked" | "completed";
 }
 
 /**
@@ -296,10 +296,10 @@ export async function bookAvailabilitySlot(id: string) {
 }
 
 /**
- * Mark a slot as blocked
+ * Mark a slot as blocked (using 'completed' status)
  */
 export async function blockAvailabilitySlot(id: string) {
-  return await updateAvailabilitySlot(id, { status: "blocked" });
+  return await updateAvailabilitySlot(id, { status: "completed" });
 }
 
 /**

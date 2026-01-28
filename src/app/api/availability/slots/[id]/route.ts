@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import {
   getAvailabilitySlotById,
   updateAvailabilitySlot,
@@ -18,10 +17,11 @@ import { updateAvailabilitySlotSchema } from "@/lib/validations/availability";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const slot = await getAvailabilitySlotById(params.id);
+    const { id } = await params;
+    const slot = await getAvailabilitySlotById(id);
 
     if (!slot) {
       return NextResponse.json(
@@ -32,7 +32,7 @@ export async function GET(
 
     // Anyone can view individual slots (for booking purposes)
     // But we might want to hide booked/blocked slots from non-owners
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const profile = session?.user?.id
       ? await getProfileByUserId(session.user.id)
       : null;
@@ -61,15 +61,16 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const slot = await getAvailabilitySlotById(params.id);
+    const { id } = await params;
+    const slot = await getAvailabilitySlotById(id);
 
     if (!slot) {
       return NextResponse.json(
@@ -94,13 +95,13 @@ export async function PATCH(
       let updated;
       switch (body.action) {
         case "book":
-          updated = await bookAvailabilitySlot(params.id);
+          updated = await bookAvailabilitySlot(id);
           break;
         case "block":
-          updated = await blockAvailabilitySlot(params.id);
+          updated = await blockAvailabilitySlot(id);
           break;
         case "open":
-          updated = await openAvailabilitySlot(params.id);
+          updated = await openAvailabilitySlot(id);
           break;
         default:
           return NextResponse.json(
@@ -113,7 +114,7 @@ export async function PATCH(
 
     // Regular update
     const validated = updateAvailabilitySlotSchema.parse(body);
-    const updated = await updateAvailabilitySlot(params.id, validated);
+    const updated = await updateAvailabilitySlot(id, validated);
 
     return NextResponse.json(updated);
   } catch (error) {
@@ -137,15 +138,16 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const slot = await getAvailabilitySlotById(params.id);
+    const { id } = await params;
+    const slot = await getAvailabilitySlotById(id);
 
     if (!slot) {
       return NextResponse.json(
@@ -163,7 +165,7 @@ export async function DELETE(
       );
     }
 
-    await deleteAvailabilitySlot(params.id);
+    await deleteAvailabilitySlot(id);
 
     return NextResponse.json({
       message: "Availability slot deleted successfully"

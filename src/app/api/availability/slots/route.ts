@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import {
   createAvailabilitySlot,
   createAvailabilitySlots,
@@ -50,7 +49,7 @@ export async function GET(request: NextRequest) {
       slots = await getOpenAvailabilitySlots(profileId, startDate, endDate);
     } else {
       // Only allow authenticated users to see all slots (including booked/blocked)
-      const session = await getServerSession(authOptions);
+      const session = await auth();
       const userProfile = session?.user?.id
         ? await getProfileByUserId(session.user.id)
         : null;
@@ -79,7 +78,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -149,7 +148,7 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

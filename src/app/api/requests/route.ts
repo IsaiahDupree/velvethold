@@ -100,7 +100,11 @@ export async function POST(request: NextRequest) {
 
     if (invitee) {
       // Send email notification to invitee
-      await sendRequestReceivedEmail(invitee.email, invitee.name, user.name);
+      await sendRequestReceivedEmail(
+        invitee.email,
+        invitee.name,
+        user.name || "Unknown"
+      );
     }
 
     return NextResponse.json(

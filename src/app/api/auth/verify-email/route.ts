@@ -28,11 +28,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // At this point, result.success is true, so userId is defined
+    const userId = result.userId as string
+
     // Get user details to send welcome email
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.id, result.userId))
+      .where(eq(users.id, userId))
       .limit(1)
 
     if (user) {
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         message: "Email verified successfully",
-        userId: result.userId,
+        userId,
       },
       { status: 200 }
     )
@@ -80,11 +83,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // At this point, result.success is true, so userId is defined
+    const userId = result.userId as string
+
     // Get user details to send welcome email
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.id, result.userId))
+      .where(eq(users.id, userId))
       .limit(1)
 
     if (user) {
@@ -95,7 +101,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         message: "Email verified successfully",
-        userId: result.userId,
+        userId,
       },
       { status: 200 }
     )
