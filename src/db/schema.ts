@@ -3,6 +3,7 @@ import { relations } from "drizzle-orm";
 
 export const userRoleEnum = pgEnum("user_role", ["invitee", "requester", "both"]);
 export const verificationStatusEnum = pgEnum("verification_status", ["unverified", "pending", "verified"]);
+export const accountStatusEnum = pgEnum("account_status", ["active", "flagged", "suspended", "banned"]);
 export const intentEnum = pgEnum("intent", ["dating", "relationship", "friends"]);
 export const slotStatusEnum = pgEnum("slot_status", ["open", "requested", "booked", "completed"]);
 export const depositStatusEnum = pgEnum("deposit_status", ["pending", "held", "refunded", "released"]);
@@ -20,6 +21,7 @@ export const users = pgTable("users", {
   phone: varchar("phone", { length: 20 }),
   role: userRoleEnum("role").notNull().default("requester"),
   verificationStatus: verificationStatusEnum("verification_status").notNull().default("unverified"),
+  accountStatus: accountStatusEnum("account_status").notNull().default("active"),
   twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
   twoFactorSecret: varchar("two_factor_secret", { length: 255 }),
   twoFactorBackupCodes: jsonb("two_factor_backup_codes"),

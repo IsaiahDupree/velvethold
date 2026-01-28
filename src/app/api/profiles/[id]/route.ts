@@ -6,6 +6,7 @@ import {
   deleteProfile,
 } from "@/db/queries/profiles";
 import { updateProfileSchema, profileIdSchema } from "@/lib/validations/profile";
+import { moderateContent, isSpam } from "@/lib/content-moderation";
 import { ZodError } from "zod";
 
 /**
@@ -93,6 +94,26 @@ export async function PATCH(
 
     // Validate input with Zod
     const validatedData = updateProfileSchema.parse(body);
+
+    // Moderate bio content if provided
+    if (validatedData.bio) {
+      // Check for spam
+      if (isSpam(validatedData.bio)) {
+        return NextResponse.json(
+          { error: "Bio content appears to be spam" },
+          { status: 400 }
+        );
+      }
+
+      // Moderate content
+      const moderation = moderateContent(validatedData.bio);
+      if (!moderation.allowed) {
+        return NextResponse.json(
+          { error: moderation.reason || "Bio contains prohibited content" },
+          { status: 400 }
+        );
+      }
+    }
 
     const profile = await updateProfile(id, validatedData);
 

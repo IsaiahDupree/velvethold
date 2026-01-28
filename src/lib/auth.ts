@@ -11,12 +11,14 @@ declare module "next-auth" {
       id: string
       role: "invitee" | "requester" | "both"
       verificationStatus: "unverified" | "pending" | "verified"
+      accountStatus: "active" | "flagged" | "suspended" | "banned"
     } & DefaultSession["user"]
   }
 
   interface User {
     role: "invitee" | "requester" | "both"
     verificationStatus: "unverified" | "pending" | "verified"
+    accountStatus: "active" | "flagged" | "suspended" | "banned"
   }
 }
 
@@ -53,6 +55,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
+        // Check if user account is suspended or banned
+        if (user.accountStatus === "suspended" || user.accountStatus === "banned") {
+          return null
+        }
+
         // Return user object
         return {
           id: user.id,
@@ -60,6 +67,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           role: user.role,
           verificationStatus: user.verificationStatus,
+          accountStatus: user.accountStatus,
         }
       },
     }),
@@ -70,6 +78,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id
         token.role = user.role
         token.verificationStatus = user.verificationStatus
+        token.accountStatus = user.accountStatus
       }
       return token
     },
@@ -78,6 +87,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string
         session.user.role = token.role as "invitee" | "requester" | "both"
         session.user.verificationStatus = token.verificationStatus as "unverified" | "pending" | "verified"
+        session.user.accountStatus = token.accountStatus as "active" | "flagged" | "suspended" | "banned"
       }
       return session
     },

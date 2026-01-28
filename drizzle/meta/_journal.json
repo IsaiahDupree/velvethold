@@ -64,6 +64,13 @@
       "when": 1769559699929,
       "tag": "0008_jittery_dracula",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1769561286674,
+      "tag": "0009_brave_firebird",
+      "breakpoints": true
     }
   ]
 }

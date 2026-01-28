@@ -27,6 +27,12 @@ const unverifiedAllowedRoutes = [
   "/auth/signout",
 ]
 
+// Routes allowed for suspended/banned users
+const accountSuspendedAllowedRoutes = [
+  "/auth/suspended",
+  "/auth/signout",
+]
+
 export default auth((req) => {
   const { pathname } = req.nextUrl
   const isAuthenticated = !!req.auth
@@ -45,11 +51,26 @@ export default auth((req) => {
     pathname.startsWith(route)
   )
 
+  // Check if it's a suspended account allowed route
+  const isSuspendedAllowedRoute = accountSuspendedAllowedRoutes.some((route) =>
+    pathname.startsWith(route)
+  )
+
   // Redirect unauthenticated users trying to access protected routes
   if (isProtectedRoute && !isAuthenticated) {
     const signInUrl = new URL("/auth/signin", req.url)
     signInUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(signInUrl)
+  }
+
+  // Block suspended/banned users (except from allowed routes)
+  if (
+    isAuthenticated &&
+    user?.accountStatus &&
+    (user.accountStatus === "suspended" || user.accountStatus === "banned") &&
+    !isSuspendedAllowedRoute
+  ) {
+    return NextResponse.redirect(new URL("/auth/suspended", req.url))
   }
 
   // Redirect authenticated but unverified users to verification page
