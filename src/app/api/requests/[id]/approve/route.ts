@@ -4,6 +4,7 @@ import {
   getRequestById,
   updateRequestStatus,
   userIsInvitee,
+  isRequestExpired,
 } from "@/db/queries/requests";
 import { db } from "@/db";
 import { chats } from "@/db/schema";
@@ -48,6 +49,16 @@ export async function POST(
       return NextResponse.json(
         {
           error: `Request has already been ${dateRequest.request.approvalStatus}`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Check if request has expired
+    if (isRequestExpired(dateRequest.request)) {
+      return NextResponse.json(
+        {
+          error: "Request has expired and can no longer be approved",
         },
         { status: 400 }
       );

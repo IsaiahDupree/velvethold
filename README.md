@@ -51,7 +51,26 @@ STRIPE_PUBLISHABLE_KEY=
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXTAUTH_SECRET=
 NEXTAUTH_URL=http://localhost:3000
+CRON_SECRET=your-secret-key-here
 ```
+
+## Features
+
+### Request Expiration Handling
+
+Date requests automatically expire after 72 hours if not approved or declined. This ensures requests don't sit in limbo indefinitely.
+
+**How it works:**
+- When a date request is created, an `expiresAt` timestamp is set to 72 hours in the future
+- A cron job runs hourly at `/api/cron/expire-requests` to automatically decline expired requests
+- When requests expire, they are marked as declined and deposits are automatically refunded
+- The approval API prevents approving expired requests
+
+**Cron Job Setup:**
+- The cron job is configured in `vercel.json` to run every hour
+- For Vercel deployments, set the `CRON_SECRET` environment variable
+- The cron endpoint is secured with Bearer token authentication
+- Manual trigger: `POST /api/cron/expire-requests` with `Authorization: Bearer YOUR_CRON_SECRET`
 
 ## Development Progress
 

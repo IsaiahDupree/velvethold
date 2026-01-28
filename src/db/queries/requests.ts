@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { dateRequests, profiles, users } from "@/db/schema";
-import { eq, and, or, desc } from "drizzle-orm";
+import { eq, and, or, desc, lt } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { CreateRequestInput } from "@/lib/validations/request";
 import { isEitherUserBlocked } from "./blocks";
@@ -13,6 +13,10 @@ export async function createRequest(data: CreateRequestInput & { requesterId: st
     throw new Error("Cannot create request: user is blocked");
   }
 
+  // Set expiration to 72 hours from now
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + 72);
+
   const [request] = await db
     .insert(dateRequests)
     .values({
@@ -24,6 +28,7 @@ export async function createRequest(data: CreateRequestInput & { requesterId: st
       depositAmount: data.depositAmount,
       depositStatus: "pending",
       approvalStatus: "pending",
+      expiresAt,
     })
     .returning();
 
@@ -163,4 +168,24 @@ export async function userIsInvitee(userId: string, requestId: string): Promise<
     .limit(1);
 
   return !!request;
+}
+
+export function isRequestExpired(request: typeof dateRequests.$inferSelect): boolean {
+  if (!request.expiresAt) {
+    return false;
+  }
+  return new Date() > new Date(request.expiresAt);
+}
+
+export async function getExpiredRequests() {
+  return await db
+    .select()
+    .from(dateRequests)
+    .where(
+      and(
+        eq(dateRequests.approvalStatus, "pending"),
+        lt(dateRequests.expiresAt, new Date())
+      )
+    )
+    .orderBy(desc(dateRequests.expiresAt));
 }

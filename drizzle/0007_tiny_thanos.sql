@@ -1,0 +1,1 @@
+ALTER TABLE "date_requests" ADD COLUMN "expires_at" timestamp;

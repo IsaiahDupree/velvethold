@@ -50,6 +50,13 @@
       "when": 1769557289489,
       "tag": "0006_parched_master_chief",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1769559328903,
+      "tag": "0007_tiny_thanos",
+      "breakpoints": true
     }
   ]
 }

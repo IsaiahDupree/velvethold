@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { createRequest, listUserRequests } from "@/db/queries/requests";
+import { createRequest, listUserRequests, isRequestExpired } from "@/db/queries/requests";
 import { createRequestSchema, listRequestsSchema } from "@/lib/validations/request";
 import { ZodError } from "zod";
 
@@ -33,7 +33,16 @@ export async function GET(request: NextRequest) {
     const validatedInput = listRequestsSchema.parse(listInput);
     const requests = await listUserRequests(user.id, validatedInput);
 
-    return NextResponse.json({ requests, count: requests.length });
+    // Add expiration status to each request
+    const requestsWithExpiration = requests.map((req) => ({
+      ...req,
+      isExpired: isRequestExpired(req.request),
+    }));
+
+    return NextResponse.json({
+      requests: requestsWithExpiration,
+      count: requestsWithExpiration.length
+    });
   } catch (error) {
     console.error("Request listing error:", error);
 

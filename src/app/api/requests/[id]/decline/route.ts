@@ -4,6 +4,7 @@ import {
   getRequestById,
   updateRequestStatus,
   userIsInvitee,
+  isRequestExpired,
 } from "@/db/queries/requests";
 import { processRefund } from "@/lib/stripe";
 
@@ -50,6 +51,12 @@ export async function POST(
         },
         { status: 400 }
       );
+    }
+
+    // Check if request has expired (allow decline even if expired for cleanup)
+    if (isRequestExpired(dateRequest.request)) {
+      // Still allow declining expired requests to process refunds
+      console.log("Declining expired request:", requestId);
     }
 
     // Update the request status to declined

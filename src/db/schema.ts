@@ -89,6 +89,7 @@ export const dateRequests = pgTable("date_requests", {
   depositAmount: integer("deposit_amount").notNull(),
   depositStatus: depositStatusEnum("deposit_status").notNull().default("pending"),
   approvalStatus: approvalStatusEnum("approval_status").notNull().default("pending"),
+  expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
