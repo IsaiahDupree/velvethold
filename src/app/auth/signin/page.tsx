@@ -8,10 +8,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { TwoFactorVerify } from "@/components/auth/two-factor-verify"
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [showTwoFactor, setShowTwoFactor] = useState(false)
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null)
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null)
+  const [pendingPassword, setPendingPassword] = useState<string | null>(null)
   const router = useRouter()
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -24,23 +29,80 @@ export default function SignInPage() {
     const password = formData.get("password") as string
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      // First, check if user has 2FA enabled
+      const checkResponse = await fetch("/api/auth/2fa/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       })
 
-      if (result?.error) {
-        setError("Invalid email or password")
+      const checkData = await checkResponse.json()
+
+      if (checkData.twoFactorEnabled) {
+        // Verify credentials first but don't create session yet
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        })
+
+        if (result?.error) {
+          setError("Invalid email or password")
+          setIsLoading(false)
+          return
+        }
+
+        // Show 2FA verification
+        setPendingUserId(checkData.userId)
+        setPendingEmail(email)
+        setPendingPassword(password)
+        setShowTwoFactor(true)
         setIsLoading(false)
       } else {
-        router.push("/onboarding")
-        router.refresh()
+        // Normal signin without 2FA
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+        })
+
+        if (result?.error) {
+          setError("Invalid email or password")
+          setIsLoading(false)
+        } else {
+          router.push("/onboarding")
+          router.refresh()
+        }
       }
     } catch (error) {
       setError("An error occurred. Please try again.")
       setIsLoading(false)
     }
+  }
+
+  async function handleTwoFactorVerified() {
+    // 2FA verified, proceed to dashboard
+    router.push("/onboarding")
+    router.refresh()
+  }
+
+  function handleTwoFactorCancel() {
+    setShowTwoFactor(false)
+    setPendingUserId(null)
+    setPendingEmail(null)
+    setPendingPassword(null)
+  }
+
+  if (showTwoFactor && pendingUserId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#3B1E4A]/5 via-[#5A2D82]/5 to-[#E7B7D2]/5 p-4">
+        <TwoFactorVerify
+          userId={pendingUserId}
+          onVerified={handleTwoFactorVerified}
+          onCancel={handleTwoFactorCancel}
+        />
+      </div>
+    )
   }
 
   return (
