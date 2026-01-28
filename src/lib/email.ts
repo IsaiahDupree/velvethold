@@ -1,4 +1,5 @@
 import { Resend } from "resend"
+import { createEmailMessage } from "@/db/queries/growth-data-plane"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -6,12 +7,15 @@ export interface EmailParams {
   to: string
   subject: string
   html: string
+  personId?: string
+  tags?: Record<string, any>
+  template?: string
 }
 
 /**
- * Send an email using Resend
+ * Send an email using Resend and log to database
  */
-export async function sendEmail({ to, subject, html }: EmailParams) {
+export async function sendEmail({ to, subject, html, personId, tags, template }: EmailParams) {
   try {
     const { data, error } = await resend.emails.send({
       from: "VelvetHold <noreply@velvethold.com>",
@@ -25,6 +29,23 @@ export async function sendEmail({ to, subject, html }: EmailParams) {
       return { success: false, error }
     }
 
+    // Store email message in database for webhook tracking
+    if (data?.id) {
+      try {
+        await createEmailMessage({
+          personId: personId || undefined,
+          messageId: data.id,
+          subject,
+          template: template || undefined,
+          tags: tags || undefined,
+        })
+        console.log(`Email message logged: ${data.id}`)
+      } catch (dbError) {
+        // Don't fail the email send if database logging fails
+        console.error("Error logging email to database:", dbError)
+      }
+    }
+
     return { success: true, data }
   } catch (error) {
     console.error("Error sending email:", error)
@@ -35,7 +56,7 @@ export async function sendEmail({ to, subject, html }: EmailParams) {
 /**
  * Send email verification email
  */
-export async function sendVerificationEmail(email: string, token: string) {
+export async function sendVerificationEmail(email: string, token: string, personId?: string) {
   const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`
 
   const html = `
@@ -77,13 +98,16 @@ export async function sendVerificationEmail(email: string, token: string) {
     to: email,
     subject: "Verify your VelvetHold email address",
     html,
+    personId,
+    template: "email_verification",
+    tags: { type: "transactional", category: "auth" },
   })
 }
 
 /**
  * Send welcome email after successful verification
  */
-export async function sendWelcomeEmail(email: string, name: string) {
+export async function sendWelcomeEmail(email: string, name: string, personId?: string) {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -125,6 +149,9 @@ export async function sendWelcomeEmail(email: string, name: string) {
     to: email,
     subject: "Welcome to VelvetHold!",
     html,
+    personId,
+    template: "welcome",
+    tags: { type: "transactional", category: "onboarding" },
   })
 }
 
@@ -134,7 +161,8 @@ export async function sendWelcomeEmail(email: string, name: string) {
 export async function sendRequestReceivedEmail(
   email: string,
   recipientName: string,
-  requesterName: string
+  requesterName: string,
+  personId?: string
 ) {
   const html = `
     <!DOCTYPE html>
@@ -172,6 +200,9 @@ export async function sendRequestReceivedEmail(
     to: email,
     subject: `New date request from ${requesterName}`,
     html,
+    personId,
+    template: "request_received",
+    tags: { type: "notification", category: "request" },
   })
 }
 
@@ -181,7 +212,8 @@ export async function sendRequestReceivedEmail(
 export async function sendRequestApprovedEmail(
   email: string,
   requesterName: string,
-  inviteeName: string
+  inviteeName: string,
+  personId?: string
 ) {
   const html = `
     <!DOCTYPE html>
@@ -219,6 +251,9 @@ export async function sendRequestApprovedEmail(
     to: email,
     subject: `${inviteeName} approved your date request!`,
     html,
+    personId,
+    template: "request_approved",
+    tags: { type: "notification", category: "request" },
   })
 }
 
@@ -228,7 +263,8 @@ export async function sendRequestApprovedEmail(
 export async function sendRequestDeclinedEmail(
   email: string,
   requesterName: string,
-  inviteeName: string
+  inviteeName: string,
+  personId?: string
 ) {
   const html = `
     <!DOCTYPE html>
@@ -266,13 +302,16 @@ export async function sendRequestDeclinedEmail(
     to: email,
     subject: "Date request update",
     html,
+    personId,
+    template: "request_declined",
+    tags: { type: "notification", category: "request" },
   })
 }
 
 /**
  * Send password reset email
  */
-export async function sendPasswordResetEmail(email: string, token: string) {
+export async function sendPasswordResetEmail(email: string, token: string, personId?: string) {
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`
 
   const html = `
@@ -314,6 +353,9 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     to: email,
     subject: "Reset your VelvetHold password",
     html,
+    personId,
+    template: "password_reset",
+    tags: { type: "transactional", category: "auth" },
   })
 }
 
@@ -328,7 +370,8 @@ export async function sendDateConfirmedEmail(
     location: string
     time: string
     date: string
-  }
+  },
+  personId?: string
 ) {
   const html = `
     <!DOCTYPE html>
@@ -373,5 +416,8 @@ export async function sendDateConfirmedEmail(
     to: email,
     subject: `Your date with ${partnerName} is confirmed!`,
     html,
+    personId,
+    template: "date_confirmed",
+    tags: { type: "notification", category: "date" },
   })
 }
