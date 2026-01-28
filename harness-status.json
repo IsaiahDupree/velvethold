@@ -6,10 +6,10 @@
   "status": "running",
   "stats": {
     "total": 93,
-    "passing": 69,
-    "pending": 24,
-    "percentComplete": "74.2"
+    "passing": 70,
+    "pending": 23,
+    "percentComplete": "75.3"
   },
   "pid": 14051,
-  "currentSession": 22
+  "currentSession": 24
 }
