@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import PhotoUpload from "@/components/photos/PhotoUpload";
+import { track } from "@/lib/growth/analytics";
 
 const STEPS = [
   { id: 1, title: "Basic Info", description: "Tell us about yourself" },
@@ -89,6 +90,15 @@ export default function RequesterOnboardingPage() {
         }
         throw new Error(data.error || "Failed to create profile");
       }
+
+      // Track activation complete
+      await track({
+        eventName: "activation_complete",
+        properties: {
+          role: "requester",
+          profileComplete: true,
+        },
+      });
 
       // Success - redirect to dashboard or next step
       router.push("/dashboard");

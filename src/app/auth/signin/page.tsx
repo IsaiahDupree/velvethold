@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { TwoFactorVerify } from "@/components/auth/two-factor-verify"
+import { track } from "@/lib/growth/analytics"
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -70,6 +71,14 @@ export default function SignInPage() {
           setError("Invalid email or password")
           setIsLoading(false)
         } else {
+          // Track login success
+          await track({
+            eventName: "login_success",
+            properties: {
+              method: "credentials",
+              twoFactorEnabled: false,
+            },
+          })
           router.push("/onboarding")
           router.refresh()
         }
@@ -81,6 +90,14 @@ export default function SignInPage() {
   }
 
   async function handleTwoFactorVerified() {
+    // Track login success with 2FA
+    await track({
+      eventName: "login_success",
+      properties: {
+        method: "credentials",
+        twoFactorEnabled: true,
+      },
+    })
     // 2FA verified, proceed to dashboard
     router.push("/onboarding")
     router.refresh()

@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import PhotoUpload from "@/components/photos/PhotoUpload";
 import { AvailabilityRulesEditor, AvailabilityRule } from "@/components/AvailabilityRulesEditor";
+import { track } from "@/lib/growth/analytics";
 
 const STEPS = [
   { id: 1, title: "Basic Info", description: "Tell us about yourself" },
@@ -128,6 +129,16 @@ export default function InviteeOnboardingPage() {
           // Don't fail the entire onboarding if availability rules fail
         }
       }
+
+      // Track activation complete
+      await track({
+        eventName: "activation_complete",
+        properties: {
+          role: "invitee",
+          profileComplete: true,
+          hasAvailabilityRules: availabilityRules.length > 0,
+        },
+      });
 
       // Success - redirect to dashboard or next step
       router.push("/dashboard");
