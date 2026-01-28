@@ -240,11 +240,67 @@ export async function identify(
 }
 
 /**
+ * Track retention events (return_session, returning_user)
+ */
+function trackRetentionEvents() {
+  if (typeof window === "undefined") return;
+
+  const LAST_VISIT_KEY = "analytics_last_visit";
+  const FIRST_VISIT_KEY = "analytics_first_visit";
+
+  const now = Date.now();
+  const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+  const firstVisit = localStorage.getItem(FIRST_VISIT_KEY);
+
+  // Set first visit if not already set
+  if (!firstVisit) {
+    localStorage.setItem(FIRST_VISIT_KEY, now.toString());
+  }
+
+  // Track return_session if user has visited before
+  if (lastVisit) {
+    const timeSinceLastVisit = now - parseInt(lastVisit);
+    const daysSinceLastVisit = timeSinceLastVisit / (1000 * 60 * 60 * 24);
+
+    // Track return_session (returning after any time away)
+    track({
+      eventName: "return_session",
+      properties: {
+        days_since_last_visit: Math.floor(daysSinceLastVisit),
+        time_since_last_visit_ms: timeSinceLastVisit,
+      },
+    }).catch((error) => {
+      console.error("Failed to track return_session:", error);
+    });
+
+    // Track returning_user (7-day retention milestone)
+    if (daysSinceLastVisit >= 7 && firstVisit) {
+      const daysSinceFirstVisit = (now - parseInt(firstVisit)) / (1000 * 60 * 60 * 24);
+      track({
+        eventName: "returning_user",
+        properties: {
+          days_since_first_visit: Math.floor(daysSinceFirstVisit),
+          days_since_last_visit: Math.floor(daysSinceLastVisit),
+        },
+      }).catch((error) => {
+        console.error("Failed to track returning_user:", error);
+      });
+    }
+  }
+
+  // Update last visit timestamp
+  localStorage.setItem(LAST_VISIT_KEY, now.toString());
+}
+
+/**
  * Initialize analytics
  * Should be called on app mount
  */
 export function initAnalytics() {
   if (typeof window === "undefined") return;
+
+  // Track retention events
+  trackRetentionEvents();
 
   // Track initial page view
   trackPageView();
