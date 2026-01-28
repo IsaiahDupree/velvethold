@@ -2,9 +2,10 @@ import { requireAuth } from "@/lib/session";
 import { searchProfiles } from "@/db/queries/profiles";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Heart, Search, SlidersHorizontal } from "lucide-react";
+import { Heart } from "lucide-react";
 import { ProfileCard } from "@/components/ProfileCard";
+import { BrowseFilters } from "@/components/BrowseFilters";
+import { BrowseSearch } from "@/components/BrowseSearch";
 
 export default async function BrowsePage({
   searchParams,
@@ -26,7 +27,7 @@ export default async function BrowsePage({
   const limit = typeof params.limit === "string" ? parseInt(params.limit) : 12;
   const offset = typeof params.offset === "string" ? parseInt(params.offset) : 0;
 
-  // Fetch profiles
+  // Fetch profiles (exclude current user and blocked users)
   const profiles = await searchProfiles({
     query,
     intent,
@@ -35,6 +36,7 @@ export default async function BrowsePage({
     maxAge,
     limit,
     offset,
+    excludeUserId: session.user.id,
   });
 
   return (
@@ -72,21 +74,10 @@ export default async function BrowsePage({
         <div className="mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search Bar */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search by name, interests, or location..."
-                className="pl-10"
-                defaultValue={query}
-              />
-            </div>
+            <BrowseSearch />
 
             {/* Filters Button */}
-            <Button variant="outline" className="gap-2">
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-            </Button>
+            <BrowseFilters />
           </div>
 
           {/* Active Filters Display */}
