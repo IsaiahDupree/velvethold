@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Script from "next/script";
 
 /**
@@ -9,9 +10,19 @@ import Script from "next/script";
  * Installs the Meta Pixel (Facebook Pixel) for browser-side event tracking.
  * Events tracked here will be automatically deduplicated with CAPI events
  * using matching event_id values.
+ *
+ * Automatically tracks PageView events on initial load and route changes.
  */
 export function MetaPixel() {
   const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+  const pathname = usePathname();
+
+  // Track PageView on route changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      (window as any).fbq("track", "PageView");
+    }
+  }, [pathname]);
 
   // Don't render if pixel ID is not configured
   if (!pixelId) {
@@ -35,6 +46,7 @@ export function MetaPixel() {
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
             fbq('init', '${pixelId}');
+            fbq('track', 'PageView');
           `,
         }}
       />
