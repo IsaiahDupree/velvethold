@@ -11,6 +11,7 @@ import {
 } from "@/lib/growth/identity-service";
 import { upsertSubscription } from "@/db/queries/growth-data-plane";
 import { trackEvent } from "@/db/queries/growth-data-plane";
+import { trackStripeEvent } from "@/lib/growth/event-service";
 
 /**
  * POST /api/webhooks/stripe
@@ -136,6 +137,13 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     return;
   }
 
+  // Get the request details to access requester ID
+  const [request] = await db
+    .select()
+    .from(dateRequests)
+    .where(eq(dateRequests.id, payment.requestId))
+    .limit(1);
+
   // Update date request deposit status
   await db
     .update(dateRequests)
@@ -144,6 +152,27 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       updatedAt: new Date(),
     })
     .where(eq(dateRequests.id, payment.requestId));
+
+  // Track purchase_completed event
+  if (request) {
+    const metadata = paymentIntent.metadata || {};
+    await trackStripeEvent({
+      eventName: "purchase_completed",
+      stripeCustomerId: paymentIntent.customer as string || "unknown",
+      properties: {
+        requestId: payment.requestId,
+        userId: metadata.userId || request.requesterId,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        paymentIntentId: paymentIntent.id,
+        depositType: metadata.depositType || "date_request",
+      },
+      stripeEventId: paymentIntent.id,
+    }).catch((error) => {
+      console.error("Failed to track purchase_completed event:", error);
+      // Don't fail webhook processing if tracking fails
+    });
+  }
 
   console.log(`Updated payment and request for payment intent: ${paymentIntent.id}`);
 }
@@ -205,6 +234,13 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     return;
   }
 
+  // Get the request details to access requester ID
+  const [request] = await db
+    .select()
+    .from(dateRequests)
+    .where(eq(dateRequests.id, payment.requestId))
+    .limit(1);
+
   // Update date request deposit status
   await db
     .update(dateRequests)
@@ -213,6 +249,27 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
       updatedAt: new Date(),
     })
     .where(eq(dateRequests.id, payment.requestId));
+
+  // Track deposit_refunded event
+  if (request) {
+    await trackStripeEvent({
+      eventName: "deposit_refunded",
+      stripeCustomerId: charge.customer as string || "unknown",
+      properties: {
+        requestId: payment.requestId,
+        userId: request.requesterId,
+        amount: charge.amount_refunded,
+        currency: charge.currency,
+        chargeId: charge.id,
+        paymentIntentId: paymentIntentId,
+        refundReason: charge.refunds?.data[0]?.reason || "unknown",
+      },
+      stripeEventId: charge.id,
+    }).catch((error) => {
+      console.error("Failed to track deposit_refunded event:", error);
+      // Don't fail webhook processing if tracking fails
+    });
+  }
 
   console.log(`Updated payment and request for refunded charge: ${charge.id}`);
 }

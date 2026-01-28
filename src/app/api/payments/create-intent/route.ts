@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { dateRequests, payments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
+import { trackAppEvent } from "@/lib/growth/event-service";
 
 /**
  * POST /api/payments/create-intent
@@ -91,6 +92,22 @@ export async function POST(request: NextRequest) {
         status: "pending",
       });
     }
+
+    // Track checkout_started event
+    await trackAppEvent({
+      eventName: "checkout_started",
+      userId: user.id,
+      properties: {
+        requestId: validatedData.requestId,
+        amount: validatedData.amount,
+        currency: STRIPE_CONFIG.currency,
+        paymentIntentId: paymentIntent.id,
+        depositType: "date_request",
+      },
+    }).catch((error) => {
+      console.error("Failed to track checkout_started event:", error);
+      // Don't fail checkout if tracking fails
+    });
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
