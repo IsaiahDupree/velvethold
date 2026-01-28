@@ -6,8 +6,10 @@ import {
   userIsInvitee,
   isRequestExpired,
 } from "@/db/queries/requests";
+import { sendRequestApprovedEmail } from "@/lib/email";
 import { db } from "@/db";
-import { chats } from "@/db/schema";
+import { chats, users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 /**
  * POST /api/requests/[id]/approve
@@ -74,6 +76,17 @@ export async function POST(
         requestId: requestId,
       })
       .returning();
+
+    // Send email notification to requester
+    const [requester] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, dateRequest.request.requesterId))
+      .limit(1);
+
+    if (requester) {
+      await sendRequestApprovedEmail(requester.email, requester.name, user.name);
+    }
 
     return NextResponse.json({
       message: "Request approved successfully",

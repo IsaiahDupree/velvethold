@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { verifyEmailToken } from "@/lib/email-verification"
+import { sendWelcomeEmail } from "@/lib/email"
+import { db } from "@/db"
+import { users } from "@/db/schema"
+import { eq } from "drizzle-orm"
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,6 +26,18 @@ export async function POST(request: NextRequest) {
         { error: result.error },
         { status: 400 }
       )
+    }
+
+    // Get user details to send welcome email
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, result.userId))
+      .limit(1)
+
+    if (user) {
+      // Send welcome email
+      await sendWelcomeEmail(user.email, user.name)
     }
 
     return NextResponse.json(
@@ -62,6 +78,18 @@ export async function GET(request: NextRequest) {
         { error: result.error },
         { status: 400 }
       )
+    }
+
+    // Get user details to send welcome email
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, result.userId))
+      .limit(1)
+
+    if (user) {
+      // Send welcome email
+      await sendWelcomeEmail(user.email, user.name)
     }
 
     return NextResponse.json(

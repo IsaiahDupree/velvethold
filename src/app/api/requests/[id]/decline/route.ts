@@ -7,6 +7,10 @@ import {
   isRequestExpired,
 } from "@/db/queries/requests";
 import { processRefund } from "@/lib/stripe";
+import { sendRequestDeclinedEmail } from "@/lib/email";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 /**
  * POST /api/requests/[id]/decline
@@ -71,6 +75,17 @@ export async function POST(
       console.error("Refund processing error:", refundError);
       // Don't fail the decline operation if refund fails
       // The refund can be processed manually later
+    }
+
+    // Send email notification to requester
+    const [requester] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, dateRequest.request.requesterId))
+      .limit(1);
+
+    if (requester) {
+      await sendRequestDeclinedEmail(requester.email, requester.name, user.name);
     }
 
     return NextResponse.json({

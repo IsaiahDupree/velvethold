@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { createRequest, listUserRequests, isRequestExpired } from "@/db/queries/requests";
 import { createRequestSchema, listRequestsSchema } from "@/lib/validations/request";
+import { sendRequestReceivedEmail } from "@/lib/email";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
 
 /**
@@ -86,6 +90,18 @@ export async function POST(request: NextRequest) {
       ...validatedData,
       requesterId: user.id,
     });
+
+    // Get invitee details to send email notification
+    const [invitee] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, validatedData.inviteeId))
+      .limit(1);
+
+    if (invitee) {
+      // Send email notification to invitee
+      await sendRequestReceivedEmail(invitee.email, invitee.name, user.name);
+    }
 
     return NextResponse.json(
       { message: "Date request created successfully", request: dateRequest },

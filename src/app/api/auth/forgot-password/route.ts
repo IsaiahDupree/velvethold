@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/db"
 import { users, passwordResetTokens } from "@/db/schema"
 import { eq } from "drizzle-orm"
+import { sendPasswordResetEmail } from "@/lib/email"
 import crypto from "crypto"
 
 export async function POST(req: NextRequest) {
@@ -48,10 +49,8 @@ export async function POST(req: NextRequest) {
       expiresAt,
     })
 
-    // TODO: Send email with reset link
-    // For now, we'll just log it to the console
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`
-    console.log(`Password reset link for ${email}: ${resetUrl}`)
+    // Send password reset email
+    await sendPasswordResetEmail(user.email, token)
 
     return NextResponse.json({
       message: "If an account exists with that email, a password reset link has been sent.",
