@@ -1079,7 +1079,35 @@
       "description": "Implement Conversions API for server-side event tracking",
       "category": "meta-pixel",
       "priority": "P1",
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-01-28",
+      "test_results": [
+        {
+          "test_name": "sendMetaCAPIEvent function implemented in src/lib/meta/capi.ts",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "CAPI client sends events to Meta Graph API",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Event service forwards Meta events to CAPI",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Environment variables configured (META_CAPI_ACCESS_TOKEN)",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Build succeeded with CAPI integration",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
     },
     {
       "id": "META-005",
@@ -1087,7 +1115,30 @@
       "description": "Use event_id to deduplicate browser and server events",
       "category": "meta-pixel",
       "priority": "P1",
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-01-28",
+      "test_results": [
+        {
+          "test_name": "event_id parameter included in CAPI events",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Meta Pixel trackMetaPixelEvent generates event_id",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Same event_id sent to both Pixel and CAPI",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Deduplication prevents double-counting events",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
     },
     {
       "id": "META-006",
@@ -1095,7 +1146,30 @@
       "description": "Hash email/phone with SHA256 for CAPI user matching",
       "category": "meta-pixel",
       "priority": "P1",
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-01-28",
+      "test_results": [
+        {
+          "test_name": "hashValue function uses SHA256 hashing",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "hashUserData function hashes all PII fields",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Email, phone, name, address data normalized and hashed",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Hashed data sent to Meta CAPI for user matching",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
     },
     {
       "id": "META-007",
