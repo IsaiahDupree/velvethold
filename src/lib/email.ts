@@ -1,5 +1,6 @@
 import { Resend } from "resend"
 import { createEmailMessage } from "@/db/queries/growth-data-plane"
+import { generateTrackedUrl } from "./click-tracking"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -10,12 +11,13 @@ export interface EmailParams {
   personId?: string
   tags?: Record<string, any>
   template?: string
+  campaign?: string // For click tracking
 }
 
 /**
  * Send an email using Resend and log to database
  */
-export async function sendEmail({ to, subject, html, personId, tags, template }: EmailParams) {
+export async function sendEmail({ to, subject, html, personId, tags, template, campaign }: EmailParams) {
   try {
     const { data, error } = await resend.emails.send({
       from: "VelvetHold <noreply@velvethold.com>",
@@ -37,7 +39,10 @@ export async function sendEmail({ to, subject, html, personId, tags, template }:
           messageId: data.id,
           subject,
           template: template || undefined,
-          tags: tags || undefined,
+          tags: {
+            ...tags,
+            ...(campaign && { campaign }),
+          },
         })
         console.log(`Email message logged: ${data.id}`)
       } catch (dbError) {
@@ -106,8 +111,12 @@ export async function sendVerificationEmail(email: string, token: string, person
 
 /**
  * Send welcome email after successful verification
+ * Note: Links use direct URLs. For tracked URLs, wrap with generateTrackedUrl() in the future.
  */
 export async function sendWelcomeEmail(email: string, name: string, personId?: string) {
+  // Generate base URLs (can be enhanced with click tracking in future iterations)
+  const browseUrl = `${process.env.NEXT_PUBLIC_APP_URL}/browse`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -135,7 +144,7 @@ export async function sendWelcomeEmail(email: string, name: string, personId?: s
               <li>Browse profiles and discover amazing people</li>
               <li>Send date requests to people who interest you</li>
             </ul>
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/browse" class="button">Start Browsing</a>
+            <a href="${browseUrl}" class="button">Start Browsing</a>
           </div>
           <div class="footer">
             <p>&copy; 2026 VelvetHold. All rights reserved.</p>
@@ -151,6 +160,7 @@ export async function sendWelcomeEmail(email: string, name: string, personId?: s
     html,
     personId,
     template: "welcome",
+    campaign: "welcome_email",
     tags: { type: "transactional", category: "onboarding" },
   })
 }
