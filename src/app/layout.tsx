@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { PostHogProvider } from "@/components/providers/posthog-provider";
+import { PostHogIdentitySync } from "@/components/analytics/posthog-identity-sync";
 import { Toaster } from "@/components/ui/toaster";
 import { auth } from "@/lib/auth";
 
@@ -23,12 +25,15 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SessionProvider session={session}>
-          <QueryProvider>
-            {children}
-            <Toaster />
-          </QueryProvider>
-        </SessionProvider>
+        <PostHogProvider>
+          <SessionProvider session={session}>
+            <PostHogIdentitySync />
+            <QueryProvider>
+              {children}
+              <Toaster />
+            </QueryProvider>
+          </SessionProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

@@ -48,6 +48,7 @@
     "next-auth": "^5.0.0-beta.30",
     "next-cloudinary": "^6.17.5",
     "postgres": "^3.4.5",
+    "posthog-js": "^1.335.5",
     "pusher": "^5.3.2",
     "pusher-js": "^8.4.0",
     "qrcode": "^1.5.4",
