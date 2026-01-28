@@ -276,3 +276,185 @@ export const photosRelations = relations(photos, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// Growth Data Plane Tables
+
+export const eventSourceEnum = pgEnum("event_source", ["web", "app", "email", "stripe", "booking", "meta"]);
+export const identityProviderEnum = pgEnum("identity_provider", ["posthog", "stripe", "meta", "app"]);
+export const emailEventTypeEnum = pgEnum("email_event_type", ["delivered", "opened", "clicked", "bounced", "complained", "unsubscribed"]);
+export const subscriptionStatusEnum = pgEnum("subscription_status", ["active", "canceled", "past_due", "trialing", "paused"]);
+export const dealStageEnum = pgEnum("deal_stage", ["lead", "qualified", "proposal", "negotiation", "closed_won", "closed_lost"]);
+
+// Canonical person table for unified identity
+export const person = pgTable("person", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
+  name: varchar("name", { length: 255 }),
+  traits: jsonb("traits"), // Additional user attributes
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Identity linking table for cross-platform identity resolution
+export const identityLink = pgTable("identity_link", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  personId: uuid("person_id").notNull().references(() => person.id, { onDelete: "cascade" }),
+  provider: identityProviderEnum("provider").notNull(),
+  externalId: varchar("external_id", { length: 255 }).notNull(), // ID from external system
+  metadata: jsonb("metadata"), // Additional provider-specific data
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// Unified events table from all sources
+export const event = pgTable("event", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  personId: uuid("person_id").references(() => person.id, { onDelete: "set null" }),
+  eventName: varchar("event_name", { length: 255 }).notNull(),
+  source: eventSourceEnum("source").notNull(),
+  properties: jsonb("properties"), // Event-specific data
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+  sessionId: varchar("session_id", { length: 255 }),
+  deviceId: varchar("device_id", { length: 255 }),
+  userAgent: text("user_agent"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+});
+
+// Email messages sent
+export const emailMessage = pgTable("email_message", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  personId: uuid("person_id").references(() => person.id, { onDelete: "set null" }),
+  messageId: varchar("message_id", { length: 255 }).notNull().unique(), // Resend message ID
+  subject: varchar("subject", { length: 500 }),
+  template: varchar("template", { length: 255 }),
+  tags: jsonb("tags"), // For associating with campaigns/automations
+  sentAt: timestamp("sent_at").notNull().defaultNow(),
+});
+
+// Email engagement events from Resend webhooks
+export const emailEvent = pgTable("email_event", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  emailMessageId: uuid("email_message_id").notNull().references(() => emailMessage.id, { onDelete: "cascade" }),
+  eventType: emailEventTypeEnum("event_type").notNull(),
+  link: varchar("link", { length: 1000 }), // For click events
+  userAgent: text("user_agent"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+});
+
+// Subscription snapshot from Stripe
+export const subscription = pgTable("subscription", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  personId: uuid("person_id").notNull().references(() => person.id, { onDelete: "cascade" }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }).notNull().unique(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+  status: subscriptionStatusEnum("status").notNull(),
+  planName: varchar("plan_name", { length: 255 }),
+  planInterval: varchar("plan_interval", { length: 50 }), // monthly, yearly
+  mrr: integer("mrr"), // Monthly recurring revenue in cents
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Deal/opportunity tracking
+export const deal = pgTable("deal", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  personId: uuid("person_id").notNull().references(() => person.id, { onDelete: "cascade" }),
+  stage: dealStageEnum("stage").notNull().default("lead"),
+  value: integer("value"), // Deal value in cents
+  source: varchar("source", { length: 255 }), // Where the lead came from
+  notes: text("notes"),
+  closedAt: timestamp("closed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Computed person features for segmentation
+export const personFeatures = pgTable("person_features", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  personId: uuid("person_id").notNull().references(() => person.id, { onDelete: "cascade" }).unique(),
+  activeDays: integer("active_days").notNull().default(0),
+  coreActions: integer("core_actions").notNull().default(0), // Key product actions
+  pricingViews: integer("pricing_views").notNull().default(0),
+  emailOpens: integer("email_opens").notNull().default(0),
+  emailClicks: integer("email_clicks").notNull().default(0),
+  lastActiveAt: timestamp("last_active_at"),
+  firstSeenAt: timestamp("first_seen_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Segment definitions and membership
+export const segment = pgTable("segment", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  criteria: jsonb("criteria").notNull(), // Segment rules/filters
+  automationConfig: jsonb("automation_config"), // Triggers (Resend, Meta, outbound)
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// Relations for Growth Data Plane tables
+export const personRelations = relations(person, ({ many }) => ({
+  identityLinks: many(identityLink),
+  events: many(event),
+  emailMessages: many(emailMessage),
+  subscriptions: many(subscription),
+  deals: many(deal),
+  features: many(personFeatures),
+}));
+
+export const identityLinkRelations = relations(identityLink, ({ one }) => ({
+  person: one(person, {
+    fields: [identityLink.personId],
+    references: [person.id],
+  }),
+}));
+
+export const eventRelations = relations(event, ({ one }) => ({
+  person: one(person, {
+    fields: [event.personId],
+    references: [person.id],
+  }),
+}));
+
+export const emailMessageRelations = relations(emailMessage, ({ one, many }) => ({
+  person: one(person, {
+    fields: [emailMessage.personId],
+    references: [person.id],
+  }),
+  events: many(emailEvent),
+}));
+
+export const emailEventRelations = relations(emailEvent, ({ one }) => ({
+  emailMessage: one(emailMessage, {
+    fields: [emailEvent.emailMessageId],
+    references: [emailMessage.id],
+  }),
+}));
+
+export const subscriptionRelations = relations(subscription, ({ one }) => ({
+  person: one(person, {
+    fields: [subscription.personId],
+    references: [person.id],
+  }),
+}));
+
+export const dealRelations = relations(deal, ({ one }) => ({
+  person: one(person, {
+    fields: [deal.personId],
+    references: [person.id],
+  }),
+}));
+
+export const personFeaturesRelations = relations(personFeatures, ({ one }) => ({
+  person: one(person, {
+    fields: [personFeatures.personId],
+    references: [person.id],
+  }),
+}));

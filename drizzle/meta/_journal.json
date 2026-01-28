@@ -71,6 +71,13 @@
       "when": 1769561286674,
       "tag": "0009_brave_firebird",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1769565222083,
+      "tag": "0010_nebulous_overlord",
+      "breakpoints": true
     }
   ]
 }
