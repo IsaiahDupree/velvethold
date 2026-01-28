@@ -319,5 +319,152 @@ export function initAnalytics() {
     subtree: true,
   });
 
+  // Track errors
+  setupErrorTracking();
+
+  // Track Core Web Vitals
+  trackWebVitals();
+
   return () => observer.disconnect();
+}
+
+/**
+ * Track JavaScript errors
+ */
+function setupErrorTracking() {
+  if (typeof window === "undefined") return;
+
+  // Track unhandled errors
+  window.addEventListener("error", (event) => {
+    track({
+      eventName: "javascript_error",
+      properties: {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        stack: event.error?.stack,
+        url: window.location.href,
+      },
+    }).catch((error) => {
+      console.error("Failed to track error:", error);
+    });
+  });
+
+  // Track unhandled promise rejections
+  window.addEventListener("unhandledrejection", (event) => {
+    track({
+      eventName: "unhandled_rejection",
+      properties: {
+        reason: event.reason?.toString(),
+        promise: event.promise?.toString(),
+        url: window.location.href,
+      },
+    }).catch((error) => {
+      console.error("Failed to track rejection:", error);
+    });
+  });
+}
+
+/**
+ * Track Core Web Vitals (CWV)
+ * https://web.dev/vitals/
+ */
+function trackWebVitals() {
+  if (typeof window === "undefined") return;
+
+  // Try to use web-vitals library if available
+  // Otherwise track what we can with Performance API
+
+  // Track Largest Contentful Paint (LCP)
+  if (typeof PerformanceObserver !== "undefined") {
+    try {
+      const lcpObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        const lastEntry = entries[entries.length - 1] as any;
+
+        track({
+          eventName: "core_web_vital",
+          properties: {
+            metric: "LCP",
+            value: lastEntry.renderTime || lastEntry.loadTime,
+            url: window.location.href,
+          },
+        }).catch(() => {});
+      });
+
+      lcpObserver.observe({ type: "largest-contentful-paint", buffered: true });
+    } catch (e) {
+      // Observer not supported
+    }
+
+    // Track First Input Delay (FID)
+    try {
+      const fidObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        entries.forEach((entry: any) => {
+          track({
+            eventName: "core_web_vital",
+            properties: {
+              metric: "FID",
+              value: entry.processingStart - entry.startTime,
+              url: window.location.href,
+            },
+          }).catch(() => {});
+        });
+      });
+
+      fidObserver.observe({ type: "first-input", buffered: true });
+    } catch (e) {
+      // Observer not supported
+    }
+
+    // Track Cumulative Layout Shift (CLS)
+    try {
+      let clsValue = 0;
+      const clsObserver = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        entries.forEach((entry: any) => {
+          if (!entry.hadRecentInput) {
+            clsValue += entry.value;
+          }
+        });
+      });
+
+      clsObserver.observe({ type: "layout-shift", buffered: true });
+
+      // Report CLS on page unload
+      window.addEventListener("beforeunload", () => {
+        track({
+          eventName: "core_web_vital",
+          properties: {
+            metric: "CLS",
+            value: clsValue,
+            url: window.location.href,
+          },
+        }).catch(() => {});
+      });
+    } catch (e) {
+      // Observer not supported
+    }
+  }
+}
+
+/**
+ * Track API errors
+ */
+export async function trackAPIError(
+  endpoint: string,
+  statusCode: number,
+  errorMessage?: string
+): Promise<void> {
+  await track({
+    eventName: "api_error",
+    properties: {
+      endpoint,
+      statusCode,
+      errorMessage,
+      url: window.location.href,
+    },
+  });
 }
