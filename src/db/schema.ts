@@ -90,6 +90,12 @@ export const dateRequests = pgTable("date_requests", {
   depositStatus: depositStatusEnum("deposit_status").notNull().default("pending"),
   approvalStatus: approvalStatusEnum("approval_status").notNull().default("pending"),
   expiresAt: timestamp("expires_at"),
+  dateConfirmedAt: timestamp("date_confirmed_at"),
+  confirmedDateTime: timestamp("confirmed_date_time"),
+  confirmedLocation: varchar("confirmed_location", { length: 500 }),
+  confirmedDetails: text("confirmed_details"),
+  inviteeConfirmed: boolean("invitee_confirmed").notNull().default(false),
+  requesterConfirmed: boolean("requester_confirmed").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

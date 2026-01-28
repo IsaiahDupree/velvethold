@@ -70,7 +70,10 @@ export default async function ChatDetailPage({
       <div className="flex-1 overflow-hidden">
         <ChatWindow
           chatId={chatData.chat.id}
+          requestId={chatData.request.id}
           currentUserId={session.user.id}
+          isInvitee={isInvitee}
+          requestApprovalStatus={chatData.request.approvalStatus}
           initialMessages={chatData.messages}
           otherUserName={otherProfile?.displayName || otherUser?.name || "User"}
         />

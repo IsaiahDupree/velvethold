@@ -8,6 +8,7 @@ import { Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { getPusherClient, getChatChannel, PUSHER_EVENTS } from "@/lib/pusher";
 import type { Channel } from "pusher-js";
+import { DateConfirmationCard } from "./DateConfirmationCard";
 
 interface Message {
   id: string;
@@ -19,14 +20,20 @@ interface Message {
 
 interface ChatWindowProps {
   chatId: string;
+  requestId: string;
   currentUserId: string;
+  isInvitee: boolean;
+  requestApprovalStatus: string;
   initialMessages: Message[];
   otherUserName: string;
 }
 
 export function ChatWindow({
   chatId,
+  requestId,
   currentUserId,
+  isInvitee,
+  requestApprovalStatus,
   initialMessages,
   otherUserName,
 }: ChatWindowProps) {
@@ -181,6 +188,16 @@ export function ChatWindow({
     <div className="flex flex-col h-full">
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Date Confirmation Card - shown when request is approved */}
+        {requestApprovalStatus === "approved" && (
+          <div className="max-w-2xl mx-auto mb-6">
+            <DateConfirmationCard
+              requestId={requestId}
+              isInvitee={isInvitee}
+            />
+          </div>
+        )}
+
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <Card className="p-8 text-center max-w-md">
