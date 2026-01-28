@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { ZodError } from "zod";
+import { trackAppEvent } from "@/lib/growth/event-service";
 
 /**
  * GET /api/requests
@@ -106,6 +107,22 @@ export async function POST(request: NextRequest) {
         user.name || "Unknown"
       );
     }
+
+    // Track request_created event
+    await trackAppEvent({
+      eventName: "request_created",
+      userId: user.id,
+      properties: {
+        requestId: dateRequest.id,
+        inviteeId: validatedData.inviteeId,
+        depositAmount: validatedData.depositAmount,
+        hasIntroMessage: !!validatedData.introMessage,
+        hasScreeningAnswers: !!validatedData.screeningAnswers,
+      },
+    }).catch((error) => {
+      console.error("Failed to track request_created event:", error);
+      // Don't fail request creation if tracking fails
+    });
 
     return NextResponse.json(
       { message: "Date request created successfully", request: dateRequest },

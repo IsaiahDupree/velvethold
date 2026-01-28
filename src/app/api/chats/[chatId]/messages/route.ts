@@ -8,6 +8,7 @@ import { z } from "zod";
 import { pusherServer, getChatChannel, PUSHER_EVENTS } from "@/lib/pusher";
 import { moderateContent, isSpam, checkRateLimit } from "@/lib/content-moderation";
 import { isEitherUserBlocked } from "@/db/queries/blocks";
+import { trackAppEvent } from "@/lib/growth/event-service";
 
 const messageSchema = z.object({
   content: z.string().min(1).max(5000),
@@ -171,6 +172,21 @@ export async function POST(
       console.error("Error broadcasting message via Pusher:", pusherError);
       // Don't fail the request if Pusher fails - message is still saved
     }
+
+    // Track message_sent event
+    await trackAppEvent({
+      eventName: "message_sent",
+      userId: session.user.id,
+      properties: {
+        chatId: chatId,
+        messageId: message.id,
+        messageLength: content.length,
+        requestId: chat.requestId,
+      },
+    }).catch((error) => {
+      console.error("Failed to track message_sent event:", error);
+      // Don't fail message sending if tracking fails
+    });
 
     // Return success with warning if applicable
     return NextResponse.json({

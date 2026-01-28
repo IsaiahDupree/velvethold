@@ -8,6 +8,7 @@ import {
 import { updateProfileSchema, profileIdSchema } from "@/lib/validations/profile";
 import { moderateContent, isSpam } from "@/lib/content-moderation";
 import { ZodError } from "zod";
+import { trackAppEvent } from "@/lib/growth/event-service";
 
 /**
  * GET /api/profiles/[id]
@@ -34,6 +35,24 @@ export async function GET(
         { error: "Profile not found" },
         { status: 404 }
       );
+    }
+
+    // Track profile_viewed event (only if viewing someone else's profile)
+    if (profile.userId !== user.id) {
+      await trackAppEvent({
+        eventName: "profile_viewed",
+        userId: user.id,
+        properties: {
+          viewedProfileId: id,
+          viewedUserId: profile.userId,
+          profileIntent: profile.intent,
+          profileAge: profile.age,
+          profileCity: profile.city,
+        },
+      }).catch((error) => {
+        console.error("Failed to track profile_viewed event:", error);
+        // Don't fail profile view if tracking fails
+      });
     }
 
     return NextResponse.json({ profile });

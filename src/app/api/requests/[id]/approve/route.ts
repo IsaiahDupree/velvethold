@@ -10,6 +10,7 @@ import { sendRequestApprovedEmail } from "@/lib/email";
 import { db } from "@/db";
 import { chats, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { trackAppEvent } from "@/lib/growth/event-service";
 
 /**
  * POST /api/requests/[id]/approve
@@ -91,6 +92,21 @@ export async function POST(
         user.name || "Unknown"
       );
     }
+
+    // Track request_approved event
+    await trackAppEvent({
+      eventName: "request_approved",
+      userId: user.id,
+      properties: {
+        requestId: requestId,
+        requesterId: dateRequest.request.requesterId,
+        chatId: chat.id,
+        depositAmount: dateRequest.request.depositAmount,
+      },
+    }).catch((error) => {
+      console.error("Failed to track request_approved event:", error);
+      // Don't fail approval if tracking fails
+    });
 
     return NextResponse.json({
       message: "Request approved successfully",

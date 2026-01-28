@@ -11,6 +11,7 @@ import { sendRequestDeclinedEmail } from "@/lib/email";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { trackAppEvent } from "@/lib/growth/event-service";
 
 /**
  * POST /api/requests/[id]/decline
@@ -91,6 +92,22 @@ export async function POST(
         user.name || "Unknown"
       );
     }
+
+    // Track request_declined event
+    await trackAppEvent({
+      eventName: "request_declined",
+      userId: user.id,
+      properties: {
+        requestId: requestId,
+        requesterId: dateRequest.request.requesterId,
+        depositAmount: dateRequest.request.depositAmount,
+        wasExpired: isRequestExpired(dateRequest.request),
+        refundSuccessful: !!refundResult,
+      },
+    }).catch((error) => {
+      console.error("Failed to track request_declined event:", error);
+      // Don't fail decline if tracking fails
+    });
 
     return NextResponse.json({
       message: "Request declined successfully",
