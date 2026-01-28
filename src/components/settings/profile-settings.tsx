@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { PhotoManager } from "./photo-manager";
 
 interface ProfileSettingsProps {
   user: any;
@@ -234,20 +235,7 @@ export function ProfileSettings({ user, profile }: ProfileSettingsProps) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile Photos</CardTitle>
-          <CardDescription>Manage your profile photos</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button asChild variant="outline">
-            <a href="/browse">View Your Profile</a>
-          </Button>
-          <p className="text-sm text-muted-foreground mt-2">
-            Photo management is available during profile setup
-          </p>
-        </CardContent>
-      </Card>
+      <PhotoManager />
 
       {(user.role === "invitee" || user.role === "both") && (
         <Card>
