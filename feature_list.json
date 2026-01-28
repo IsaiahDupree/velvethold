@@ -1053,7 +1053,35 @@
       "description": "Handle subscription events, map stripe_customer_id to person_id",
       "category": "growth-data-plane",
       "priority": "P1",
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-01-28",
+      "test_results": [
+        {
+          "test_name": "Webhook handlers for subscription events implemented",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Identity mapping from stripe customer ID to person ID",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Subscription event tracking in unified events table",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Documentation and test files created",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Application builds and runs successfully",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
     },
     {
       "id": "GDP-008",
@@ -1061,7 +1089,30 @@
       "description": "Upsert subscription status, plan, MRR from Stripe events",
       "category": "growth-data-plane",
       "priority": "P1",
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-01-28",
+      "test_results": [
+        {
+          "test_name": "upsertSubscription function handles create and update",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "MRR calculation for monthly and yearly subscriptions",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Subscription status tracking (active, canceled, past_due)",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Subscription metadata stored correctly",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
     },
     {
       "id": "GDP-009",
