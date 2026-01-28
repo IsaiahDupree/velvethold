@@ -82,6 +82,7 @@ export async function trackEvent(data: {
   deviceId?: string;
   userAgent?: string;
   ipAddress?: string;
+  eventId?: string; // For Meta Pixel/CAPI deduplication
 }) {
   const [newEvent] = await db.insert(event).values(data).returning();
   return newEvent;

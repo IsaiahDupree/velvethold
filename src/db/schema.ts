@@ -318,6 +318,7 @@ export const event = pgTable("event", {
   deviceId: varchar("device_id", { length: 255 }),
   userAgent: text("user_agent"),
   ipAddress: varchar("ip_address", { length: 45 }),
+  eventId: varchar("event_id", { length: 255 }), // For Meta Pixel/CAPI deduplication
 });
 
 // Email messages sent

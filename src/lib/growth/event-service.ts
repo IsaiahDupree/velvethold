@@ -7,6 +7,7 @@
 
 import { trackEvent, getEventsByPerson, getEventsByDateRange } from "@/db/queries/growth-data-plane";
 import { resolvePersonFromExternalId, getOrCreatePerson } from "./identity-service";
+import { sendMetaCAPIEvent, getMetaStandardEvent } from "../meta/capi";
 
 export type EventSource = "web" | "app" | "email" | "stripe" | "booking" | "meta";
 
@@ -19,6 +20,7 @@ export interface BaseEventData {
   deviceId?: string;
   userAgent?: string;
   ipAddress?: string;
+  eventId?: string; // For Meta Pixel/CAPI deduplication
 }
 
 export interface WebEventData extends BaseEventData {
@@ -62,6 +64,8 @@ export interface MetaEventData extends BaseEventData {
   fbp?: string; // Facebook browser ID
   fbc?: string; // Facebook click ID
   externalId?: string; // Hashed email or other identifier
+  email?: string; // For CAPI user matching
+  eventSourceUrl?: string; // For CAPI event context
 }
 
 export type EventData =
@@ -137,7 +141,29 @@ export async function ingestEvent(data: EventData): Promise<void> {
     deviceId: data.deviceId,
     userAgent: data.userAgent,
     ipAddress: data.ipAddress,
+    eventId: data.eventId,
   });
+
+  // Forward Meta events to CAPI for server-side tracking
+  if (data.source === "meta" && data.eventId) {
+    // Send to Meta Conversions API with matching event_id for deduplication
+    await sendMetaCAPIEvent({
+      eventName: getMetaStandardEvent(data.eventName),
+      eventId: data.eventId, // Critical: Must match pixel event_id
+      eventTime: data.timestamp,
+      eventSourceUrl: data.eventSourceUrl,
+      email: data.email,
+      externalId: data.externalId,
+      fbp: data.fbp,
+      fbc: data.fbc,
+      clientIp: data.ipAddress,
+      clientUserAgent: data.userAgent,
+      customData: properties,
+    }).catch((error) => {
+      // Log but don't fail the event ingestion
+      console.error("Failed to send Meta CAPI event:", error);
+    });
+  }
 }
 
 /**
@@ -229,6 +255,7 @@ export async function trackEmailEvent(params: {
 /**
  * Track a Meta Pixel event
  * Convenience method for Meta advertising events
+ * Automatically forwards to CAPI with matching eventId for deduplication
  */
 export async function trackMetaEvent(params: {
   eventName: string;
@@ -236,6 +263,11 @@ export async function trackMetaEvent(params: {
   fbp?: string;
   fbc?: string;
   externalId?: string;
+  email?: string;
+  eventId?: string; // For Pixel/CAPI deduplication
+  eventSourceUrl?: string;
+  userAgent?: string;
+  ipAddress?: string;
 }) {
   await ingestEvent({
     source: "meta",

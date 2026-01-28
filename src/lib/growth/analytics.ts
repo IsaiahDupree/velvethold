@@ -8,6 +8,9 @@
 
 import { v4 as uuidv4 } from "uuid";
 
+// Re-export Meta Pixel tracking for convenience
+export { trackMetaPixelEvent } from "@/components/analytics/meta-pixel";
+
 // Session management
 const SESSION_KEY = "analytics_session_id";
 const DEVICE_KEY = "analytics_device_id";
