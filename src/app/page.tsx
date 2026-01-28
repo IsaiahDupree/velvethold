@@ -1,9 +1,35 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Calendar, Lock, CheckCircle } from "lucide-react";
+import { track } from "@/lib/growth/analytics";
 
 export default function Home() {
+  // Track landing view on page load
+  useEffect(() => {
+    track({
+      eventName: "landing_view",
+      properties: {
+        page: "home",
+      },
+    });
+  }, []);
+
+  // Track CTA clicks
+  const handleCtaClick = (ctaName: string, destination: string) => {
+    track({
+      eventName: "cta_click",
+      properties: {
+        cta_name: ctaName,
+        destination,
+        page: "home",
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen">
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -13,10 +39,10 @@ export default function Home() {
           </Link>
           <div className="flex gap-4">
             <Button variant="ghost" asChild>
-              <Link href="/auth/signin">Sign In</Link>
+              <Link href="/auth/signin" onClick={() => handleCtaClick("nav_signin", "/auth/signin")}>Sign In</Link>
             </Button>
             <Button asChild>
-              <Link href="/auth/signup">Get Started</Link>
+              <Link href="/auth/signup" onClick={() => handleCtaClick("nav_get_started", "/auth/signup")}>Get Started</Link>
             </Button>
           </div>
         </div>
@@ -33,10 +59,10 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button size="lg" className="bg-white text-[#3B1E4A] hover:bg-white/90" asChild>
-                <Link href="/auth/signup">Create Profile</Link>
+                <Link href="/auth/signup" onClick={() => handleCtaClick("hero_create_profile", "/auth/signup")}>Create Profile</Link>
               </Button>
               <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm" asChild>
-                <Link href="#how-it-works">How It Works</Link>
+                <Link href="#how-it-works" onClick={() => handleCtaClick("hero_how_it_works", "#how-it-works")}>How It Works</Link>
               </Button>
             </div>
           </div>
@@ -154,7 +180,7 @@ export default function Home() {
             Join VelvetHold today and experience dating with accountability and respect
           </p>
           <Button size="lg" className="bg-white text-primary hover:bg-white/90" asChild>
-            <Link href="/auth/signup">Create Your Profile</Link>
+            <Link href="/auth/signup" onClick={() => handleCtaClick("footer_cta_create_profile", "/auth/signup")}>Create Your Profile</Link>
           </Button>
         </div>
       </section>
@@ -172,7 +198,7 @@ export default function Home() {
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="#how-it-works" className="hover:text-foreground">How It Works</Link></li>
-                <li><Link href="/pricing" className="hover:text-foreground">Pricing</Link></li>
+                <li><Link href="/pricing" className="hover:text-foreground" onClick={() => handleCtaClick("footer_pricing", "/pricing")}>Pricing</Link></li>
                 <li><Link href="/safety" className="hover:text-foreground">Safety</Link></li>
               </ul>
             </div>

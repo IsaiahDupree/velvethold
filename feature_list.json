@@ -735,7 +735,45 @@
       "description": "Track landing_view, cta_click, pricing_view with UTM params",
       "category": "tracking",
       "priority": "P1",
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-01-28",
+      "test_results": [
+        {
+          "test_name": "landing_view event on home page load",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "cta_click events on all landing page CTAs",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "pricing_view event on pricing page load",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "cta_click events on all pricing page CTAs",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "UTM parameter capture and inclusion in events",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Session and device ID tracking",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Build succeeded with acquisition tracking",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
     },
     {
       "id": "TRACK-003",
