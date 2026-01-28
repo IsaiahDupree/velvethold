@@ -85,6 +85,13 @@
       "when": 1769570913395,
       "tag": "0011_skinny_jigsaw",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1769572497711,
+      "tag": "0012_elite_harrier",
+      "breakpoints": true
     }
   ]
 }

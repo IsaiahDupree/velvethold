@@ -400,6 +400,15 @@ export const segment = pgTable("segment", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+// Segment membership tracking
+export const segmentMembership = pgTable("segment_membership", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  segmentId: uuid("segment_id").notNull().references(() => segment.id, { onDelete: "cascade" }),
+  personId: uuid("person_id").notNull().references(() => person.id, { onDelete: "cascade" }),
+  enteredAt: timestamp("entered_at").notNull().defaultNow(),
+  exitedAt: timestamp("exited_at"),
+});
+
 // Relations for Growth Data Plane tables
 export const personRelations = relations(person, ({ many }) => ({
   identityLinks: many(identityLink),
@@ -456,6 +465,21 @@ export const dealRelations = relations(deal, ({ one }) => ({
 export const personFeaturesRelations = relations(personFeatures, ({ one }) => ({
   person: one(person, {
     fields: [personFeatures.personId],
+    references: [person.id],
+  }),
+}));
+
+export const segmentRelations = relations(segment, ({ many }) => ({
+  memberships: many(segmentMembership),
+}));
+
+export const segmentMembershipRelations = relations(segmentMembership, ({ one }) => ({
+  segment: one(segment, {
+    fields: [segmentMembership.segmentId],
+    references: [segment.id],
+  }),
+  person: one(person, {
+    fields: [segmentMembership.personId],
     references: [person.id],
   }),
 }));

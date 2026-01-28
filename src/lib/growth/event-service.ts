@@ -155,6 +155,13 @@ export async function ingestEvent(data: EventData): Promise<void> {
       // Log but don't fail event ingestion
       console.error("Failed to update person features:", error);
     });
+
+    // Evaluate segments after feature update
+    const { evaluateSegmentsAfterEvent } = await import("./segment-engine");
+    await evaluateSegmentsAfterEvent(personId).catch((error) => {
+      // Log but don't fail event ingestion
+      console.error("Failed to evaluate segments:", error);
+    });
   }
 
   // Forward Meta events to CAPI for server-side tracking

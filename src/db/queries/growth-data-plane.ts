@@ -9,8 +9,9 @@ import {
   deal,
   personFeatures,
   segment,
+  segmentMembership,
 } from "@/db/schema";
-import { eq, and, desc, gte, lte } from "drizzle-orm";
+import { eq, and, desc, gte, lte, isNull } from "drizzle-orm";
 
 // Person queries
 export async function createPerson(data: {
@@ -302,4 +303,75 @@ export async function updateSegment(id: string, data: Partial<typeof segment.$in
     .where(eq(segment.id, id))
     .returning();
   return updated;
+}
+
+export async function getSegmentById(id: string) {
+  const [result] = await db.select().from(segment).where(eq(segment.id, id));
+  return result;
+}
+
+// Segment Membership queries
+export async function addPersonToSegment(personId: string, segmentId: string) {
+  // Check if already a member
+  const existing = await db
+    .select()
+    .from(segmentMembership)
+    .where(
+      and(
+        eq(segmentMembership.personId, personId),
+        eq(segmentMembership.segmentId, segmentId),
+        isNull(segmentMembership.exitedAt)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    return existing[0]; // Already a member
+  }
+
+  const [membership] = await db
+    .insert(segmentMembership)
+    .values({ personId, segmentId })
+    .returning();
+  return membership;
+}
+
+export async function removePersonFromSegment(personId: string, segmentId: string) {
+  // Mark as exited
+  const [updated] = await db
+    .update(segmentMembership)
+    .set({ exitedAt: new Date() })
+    .where(
+      and(
+        eq(segmentMembership.personId, personId),
+        eq(segmentMembership.segmentId, segmentId),
+        isNull(segmentMembership.exitedAt)
+      )
+    )
+    .returning();
+  return updated;
+}
+
+export async function getPersonSegmentMemberships(personId: string) {
+  return db
+    .select()
+    .from(segmentMembership)
+    .where(
+      and(
+        eq(segmentMembership.personId, personId),
+        isNull(segmentMembership.exitedAt)
+      )
+    );
+}
+
+export async function getSegmentMembers(segmentId: string) {
+  return db
+    .select()
+    .from(segmentMembership)
+    .where(
+      and(
+        eq(segmentMembership.segmentId, segmentId),
+        isNull(segmentMembership.exitedAt)
+      )
+    );
 }
