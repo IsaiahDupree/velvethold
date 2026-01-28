@@ -198,6 +198,48 @@ export async function trackConversion(
 }
 
 /**
+ * Identify a user with traits
+ * Should be called on login/signup to associate events with a user
+ */
+export async function identify(
+  userId: string,
+  traits?: Record<string, any>
+): Promise<void> {
+  try {
+    const sessionId = getOrCreateSessionId();
+    const deviceId = getOrCreateDeviceId();
+
+    const identifyData = {
+      source: "web" as const,
+      eventName: "user_identified",
+      userId,
+      properties: {
+        ...traits,
+        identifiedAt: new Date().toISOString(),
+      },
+      sessionId,
+      deviceId,
+    };
+
+    // Send to API
+    const response = await fetch("/api/growth/events/track", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(identifyData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to identify user: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Error identifying user:", error);
+    // Don't throw - we don't want tracking errors to break the app
+  }
+}
+
+/**
  * Initialize analytics
  * Should be called on app mount
  */

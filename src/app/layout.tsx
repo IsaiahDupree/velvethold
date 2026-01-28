@@ -5,6 +5,7 @@ import { SessionProvider } from "@/components/providers/session-provider";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { PostHogProvider } from "@/components/providers/posthog-provider";
 import { PostHogIdentitySync } from "@/components/analytics/posthog-identity-sync";
+import { UserIdentitySync } from "@/components/analytics/user-identity-sync";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { AnalyticsInit } from "@/components/analytics/analytics-init";
 import { Toaster } from "@/components/ui/toaster";
@@ -33,6 +34,7 @@ export default async function RootLayout({
         <PostHogProvider>
           <SessionProvider session={session}>
             <PostHogIdentitySync />
+            <UserIdentitySync />
             <AnalyticsInit />
             <QueryProvider>
               {children}
