@@ -6,9 +6,9 @@
   "status": "running",
   "stats": {
     "total": 93,
-    "passing": 63,
-    "pending": 30,
-    "percentComplete": "67.7"
+    "passing": 64,
+    "pending": 29,
+    "percentComplete": "68.8"
   },
   "pid": 14051,
   "currentSession": 17
