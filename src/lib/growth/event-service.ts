@@ -144,6 +144,19 @@ export async function ingestEvent(data: EventData): Promise<void> {
     eventId: data.eventId,
   });
 
+  // Update person features incrementally if we have a person ID
+  if (personId) {
+    const { incrementalUpdateFeatures } = await import("./features-service");
+    await incrementalUpdateFeatures(
+      personId,
+      data.eventName,
+      data.timestamp || new Date()
+    ).catch((error) => {
+      // Log but don't fail event ingestion
+      console.error("Failed to update person features:", error);
+    });
+  }
+
   // Forward Meta events to CAPI for server-side tracking
   if (data.source === "meta" && data.eventId) {
     // Send to Meta Conversions API with matching event_id for deduplication

@@ -142,6 +142,14 @@ async function handleEmailOpened(data: any) {
     ipAddress: data.ip_address || undefined,
   });
 
+  // Increment email opens feature for person
+  if (emailMessage.personId) {
+    const { incrementPersonFeature } = await import("@/db/queries/growth-data-plane");
+    await incrementPersonFeature(emailMessage.personId, "emailOpens").catch((error) => {
+      console.error("Failed to increment email opens:", error);
+    });
+  }
+
   console.log(`Stored open event for email: ${data.email_id}`);
 }
 
@@ -167,6 +175,14 @@ async function handleEmailClicked(data: any) {
     userAgent: data.user_agent || undefined,
     ipAddress: data.ip_address || undefined,
   });
+
+  // Increment email clicks feature for person
+  if (emailMessage.personId) {
+    const { incrementPersonFeature } = await import("@/db/queries/growth-data-plane");
+    await incrementPersonFeature(emailMessage.personId, "emailClicks").catch((error) => {
+      console.error("Failed to increment email clicks:", error);
+    });
+  }
 
   console.log(`Stored click event for email: ${data.email_id}`);
 }
