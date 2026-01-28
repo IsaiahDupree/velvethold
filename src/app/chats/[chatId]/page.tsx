@@ -72,10 +72,12 @@ export default async function ChatDetailPage({
           chatId={chatData.chat.id}
           requestId={chatData.request.id}
           currentUserId={session.user.id}
+          otherUserId={otherUser?.id || ""}
           isInvitee={isInvitee}
           requestApprovalStatus={chatData.request.approvalStatus}
           initialMessages={chatData.messages}
           otherUserName={otherProfile?.displayName || otherUser?.name || "User"}
+          otherUserVerified={otherUser?.verificationStatus === "verified"}
         />
       </div>
     </div>

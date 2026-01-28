@@ -4,11 +4,14 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Send } from "lucide-react";
+import { Send, AlertCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { getPusherClient, getChatChannel, PUSHER_EVENTS } from "@/lib/pusher";
 import type { Channel } from "pusher-js";
 import { DateConfirmationCard } from "./DateConfirmationCard";
+import { ChatMessageActions } from "./ChatMessageActions";
+import { SafetyBanner } from "./SafetyBanner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Message {
   id: string;
@@ -22,25 +25,30 @@ interface ChatWindowProps {
   chatId: string;
   requestId: string;
   currentUserId: string;
+  otherUserId: string;
   isInvitee: boolean;
   requestApprovalStatus: string;
   initialMessages: Message[];
   otherUserName: string;
+  otherUserVerified: boolean;
 }
 
 export function ChatWindow({
   chatId,
   requestId,
   currentUserId,
+  otherUserId,
   isInvitee,
   requestApprovalStatus,
   initialMessages,
   otherUserName,
+  otherUserVerified,
 }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const channelRef = useRef<Channel | null>(null);
@@ -103,6 +111,7 @@ export function ChatWindow({
     setIsSending(true);
     const messageContent = newMessage.trim();
     setNewMessage("");
+    setWarningMessage(null);
 
     try {
       const response = await fetch(`/api/chats/${chatId}/messages`, {
@@ -115,19 +124,26 @@ export function ChatWindow({
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
 
       // Add the new message to the list
       setMessages((prev) => [...prev, data.message]);
+
+      // Show warning if present
+      if (data.warning) {
+        setWarningMessage(data.warning);
+        setTimeout(() => setWarningMessage(null), 5000);
+      }
     } catch (error) {
       console.error("Error sending message:", error);
       // Restore the message if it failed to send
       setNewMessage(messageContent);
-      alert("Failed to send message. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to send message. Please try again.";
+      alert(errorMessage);
     } finally {
       setIsSending(false);
       textareaRef.current?.focus();
@@ -186,8 +202,40 @@ export function ChatWindow({
 
   return (
     <div className="flex flex-col h-full">
+      {/* Header with Actions */}
+      <div className="border-b bg-background p-4">
+        <div className="container mx-auto max-w-4xl flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">{otherUserName}</h2>
+            <p className="text-sm text-muted-foreground">
+              {otherUserVerified ? "Verified User" : "Unverified User"}
+            </p>
+          </div>
+          <ChatMessageActions
+            otherUserId={otherUserId}
+            otherUserName={otherUserName}
+            chatId={chatId}
+          />
+        </div>
+      </div>
+
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {/* Safety Banner */}
+        <div className="container mx-auto max-w-4xl">
+          <SafetyBanner isVerified={otherUserVerified} otherUserName={otherUserName} />
+        </div>
+
+        {/* Warning Message */}
+        {warningMessage && (
+          <div className="container mx-auto max-w-4xl">
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{warningMessage}</AlertDescription>
+            </Alert>
+          </div>
+        )}
+
         {/* Date Confirmation Card - shown when request is approved */}
         {requestApprovalStatus === "approved" && (
           <div className="max-w-2xl mx-auto mb-6">

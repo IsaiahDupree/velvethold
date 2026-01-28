@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/session";
 import { createMessage, userIsParticipant } from "@/db/queries/chats";
 import { db } from "@/db";
-import { messages } from "@/db/schema";
+import { messages, chats, dateRequests } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
 import { pusherServer, getChatChannel, PUSHER_EVENTS } from "@/lib/pusher";
+import { moderateContent, isSpam, checkRateLimit } from "@/lib/content-moderation";
+import { isEitherUserBlocked } from "@/db/queries/blocks";
 
 const messageSchema = z.object({
   content: z.string().min(1).max(5000),
@@ -95,6 +97,66 @@ export async function POST(
 
     const { content } = validation.data;
 
+    // Rate limiting check
+    if (!checkRateLimit(session.user.id, 10)) {
+      return NextResponse.json(
+        { error: "You are sending messages too quickly. Please wait a moment." },
+        { status: 429 }
+      );
+    }
+
+    // Spam detection
+    if (isSpam(content)) {
+      return NextResponse.json(
+        { error: "Message appears to be spam. Please send a normal message." },
+        { status: 400 }
+      );
+    }
+
+    // Content moderation
+    const moderation = moderateContent(content);
+    if (!moderation.allowed) {
+      return NextResponse.json(
+        { error: moderation.reason || "Message contains prohibited content" },
+        { status: 400 }
+      );
+    }
+
+    // Check if users have blocked each other
+    // Get the chat to find the other user
+    const [chat] = await db
+      .select()
+      .from(chats)
+      .where(eq(chats.id, chatId))
+      .limit(1);
+
+    if (!chat) {
+      return NextResponse.json(
+        { error: "Chat not found" },
+        { status: 404 }
+      );
+    }
+
+    const [request] = await db
+      .select()
+      .from(dateRequests)
+      .where(eq(dateRequests.id, chat.requestId))
+      .limit(1);
+
+    if (request) {
+      const otherUserId = request.inviteeId === session.user.id
+        ? request.requesterId
+        : request.inviteeId;
+
+      const isBlocked = await isEitherUserBlocked(session.user.id, otherUserId);
+      if (isBlocked) {
+        return NextResponse.json(
+          { error: "Cannot send message. Communication with this user is blocked." },
+          { status: 403 }
+        );
+      }
+    }
+
     // Create the message
     const message = await createMessage(chatId, session.user.id, content);
 
@@ -110,7 +172,11 @@ export async function POST(
       // Don't fail the request if Pusher fails - message is still saved
     }
 
-    return NextResponse.json({ message }, { status: 201 });
+    // Return success with warning if applicable
+    return NextResponse.json({
+      message,
+      warning: moderation.warning,
+    }, { status: 201 });
   } catch (error) {
     console.error("Error creating message:", error);
     return NextResponse.json(
