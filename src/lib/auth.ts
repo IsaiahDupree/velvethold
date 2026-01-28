@@ -4,6 +4,7 @@ import { db } from "@/db"
 import { users } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcrypt"
+import { identifyUser } from "@/lib/growth/identity-service"
 
 declare module "next-auth" {
   interface Session {
@@ -16,6 +17,7 @@ declare module "next-auth" {
   }
 
   interface User {
+    id: string
     role: "invitee" | "requester" | "both"
     verificationStatus: "unverified" | "pending" | "verified"
     accountStatus: "active" | "flagged" | "suspended" | "banned"
@@ -79,6 +81,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role
         token.verificationStatus = user.verificationStatus
         token.accountStatus = user.accountStatus
+
+        // Sync user to person table on login
+        try {
+          await identifyUser(user.id, {
+            source: "login",
+            lastLogin: new Date().toISOString(),
+          })
+        } catch (error) {
+          // Log but don't fail login if identity sync fails
+          console.error("Failed to sync user to person table on login:", error)
+        }
       }
       return token
     },

@@ -7,6 +7,7 @@ import { createVerificationToken } from "@/lib/email-verification"
 import { sendVerificationEmail } from "@/lib/email"
 import { signUpSchema } from "@/lib/validations/auth"
 import { ZodError } from "zod"
+import { identifyUser } from "@/lib/growth/identity-service"
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,6 +51,17 @@ export async function POST(request: NextRequest) {
 
     // Send verification email
     await sendVerificationEmail(email, verificationToken.token)
+
+    // Sync user to person table for identity tracking
+    try {
+      await identifyUser(newUser.id, {
+        source: "signup",
+        verificationStatus: "unverified",
+      })
+    } catch (error) {
+      // Log but don't fail signup if identity sync fails
+      console.error("Failed to sync user to person table:", error)
+    }
 
     return NextResponse.json(
       {
