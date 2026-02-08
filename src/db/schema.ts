@@ -12,6 +12,7 @@ export const paymentStatusEnum = pgEnum("payment_status", ["pending", "succeeded
 export const visibilityLevelEnum = pgEnum("visibility_level", ["public", "verified", "paid", "approved"]);
 export const reportTypeEnum = pgEnum("report_type", ["harassment", "inappropriate_behavior", "fake_profile", "scam", "offensive_content", "other"]);
 export const reportStatusEnum = pgEnum("report_status", ["pending", "under_review", "resolved", "dismissed"]);
+export const ratingEnum = pgEnum("rating", ["1", "2", "3", "4", "5"]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -164,6 +165,23 @@ export const photos = pgTable("photos", {
   isPrimary: boolean("is_primary").notNull().default(false),
   order: integer("order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const reviews = pgTable("reviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  requestId: uuid("request_id").notNull().references(() => dateRequests.id, { onDelete: "cascade" }).unique(),
+  reviewerId: uuid("reviewer_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  reviewedUserId: uuid("reviewed_user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  rating: ratingEnum("rating").notNull(),
+  comment: text("comment"),
+  atmosphere: ratingEnum("atmosphere"), // How was the date location/atmosphere
+  conversation: ratingEnum("conversation"), // How was the conversation quality
+  timeliness: ratingEnum("timeliness"), // Did they show up on time
+  safetyRating: ratingEnum("safety_rating"), // Did they follow safety practices
+  wouldMeetAgain: boolean("would_meet_again"),
+  flagForSafety: boolean("flag_for_safety").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const usersRelations = relations(users, ({ one, many }) => ({
