@@ -25,6 +25,10 @@ export const users = pgTable("users", {
   twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
   twoFactorSecret: varchar("two_factor_secret", { length: 255 }),
   twoFactorBackupCodes: jsonb("two_factor_backup_codes"),
+  tosAcceptedAt: timestamp("tos_accepted_at"),
+  tosVersion: varchar("tos_version", { length: 50 }),
+  privacyAcceptedAt: timestamp("privacy_accepted_at"),
+  privacyVersion: varchar("privacy_version", { length: 50 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

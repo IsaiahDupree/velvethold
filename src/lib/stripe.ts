@@ -19,6 +19,15 @@ export const STRIPE_CONFIG = {
 } as const;
 
 /**
+ * Release a deposit back to the requester when a date is completed successfully
+ * @param requestId - The ID of the date request
+ * @returns The refund object from Stripe
+ */
+export async function releaseDepositOnCompletion(requestId: string) {
+  return processRefund(requestId, 'date_completed');
+}
+
+/**
  * Process a refund for a date request deposit
  * @param requestId - The ID of the date request
  * @param reason - Optional reason for the refund

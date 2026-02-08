@@ -2,7 +2,7 @@
   "project": "VelvetHold",
   "description": "Premium dating platform with refundable deposits to ensure serious intentions and eliminate no-shows",
   "version": "1.0",
-  "totalFeatures": 93,
+  "totalFeatures": 120,
   "completedFeatures": 81,
   "phases": {
     "phase1_infrastructure": "Project setup, Next.js, database schema, design system",
@@ -1856,6 +1856,400 @@
         },
         {
           "test_name": "Build succeeded with segment engine",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
+    },
+    {
+      "id": "VH-094",
+      "name": "Push Notification System",
+      "description": "Web push notifications for date requests, messages, and matches",
+      "category": "notifications",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-095",
+      "name": "In-App Notification Center",
+      "description": "Centralized notification feed with read/unread status and filtering",
+      "category": "notifications",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-096",
+      "name": "SMS Verification",
+      "description": "Phone number verification via SMS for additional identity confirmation",
+      "category": "verification",
+      "priority": "P1",
+      "phase": "phase8_verification",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-097",
+      "name": "Photo Verification with Selfie",
+      "description": "Live selfie comparison against profile photos to verify identity",
+      "category": "verification",
+      "priority": "P1",
+      "phase": "phase8_verification",
+      "effort": "L",
+      "passes": false
+    },
+    {
+      "id": "VH-098",
+      "name": "Date Location Suggestions",
+      "description": "Suggest nearby date venues based on mutual preferences and location",
+      "category": "dating",
+      "priority": "P2",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-099",
+      "name": "Availability Calendar",
+      "description": "Users set available date times; matching suggests overlapping slots",
+      "category": "dating",
+      "priority": "P1",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-100",
+      "name": "Date Feedback & Rating",
+      "description": "Post-date feedback system with ratings and safety reporting",
+      "category": "dating",
+      "priority": "P1",
+      "phase": "phase9_safety",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-101",
+      "name": "Profile Boost Feature",
+      "description": "Premium feature to boost profile visibility for a limited time",
+      "category": "monetization",
+      "priority": "P2",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-102",
+      "name": "Subscription Tiers",
+      "description": "Multiple subscription levels (Free, Premium, VIP) with different features",
+      "category": "monetization",
+      "priority": "P1",
+      "phase": "phase5_requests",
+      "effort": "L",
+      "passes": false
+    },
+    {
+      "id": "VH-103",
+      "name": "Referral Program",
+      "description": "Invite friends for deposit credits or free premium features",
+      "category": "monetization",
+      "priority": "P2",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-104",
+      "name": "Advanced Matching Algorithm",
+      "description": "AI-powered compatibility scoring based on preferences, behavior, and interests",
+      "category": "matching",
+      "priority": "P1",
+      "phase": "phase4_browse",
+      "effort": "L",
+      "passes": false
+    },
+    {
+      "id": "VH-105",
+      "name": "Interest Tags & Hobbies",
+      "description": "Detailed interest tags for better matching and profile discovery",
+      "category": "profiles",
+      "priority": "P1",
+      "phase": "phase3_profiles",
+      "effort": "S",
+      "passes": false
+    },
+    {
+      "id": "VH-106",
+      "name": "Profile Prompts & Icebreakers",
+      "description": "Curated prompts users answer to showcase personality beyond photos",
+      "category": "profiles",
+      "priority": "P1",
+      "phase": "phase3_profiles",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-107",
+      "name": "Video Profile Clips",
+      "description": "Short video introductions on profiles for richer first impressions",
+      "category": "profiles",
+      "priority": "P2",
+      "phase": "phase3_profiles",
+      "effort": "L",
+      "passes": false
+    },
+    {
+      "id": "VH-108",
+      "name": "Admin Moderation Dashboard",
+      "description": "Admin panel for reviewing reports, managing users, and content moderation",
+      "category": "admin",
+      "priority": "P0",
+      "phase": "phase9_safety",
+      "effort": "L",
+      "passes": false
+    },
+    {
+      "id": "VH-109",
+      "name": "Automated Content Moderation",
+      "description": "AI-based detection of inappropriate photos and messages",
+      "category": "safety",
+      "priority": "P1",
+      "phase": "phase9_safety",
+      "effort": "L",
+      "passes": false
+    },
+    {
+      "id": "VH-110",
+      "name": "Safety Check-In Feature",
+      "description": "Optional safety check-in during dates with emergency contact alerts",
+      "category": "safety",
+      "priority": "P1",
+      "phase": "phase9_safety",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-111",
+      "name": "Analytics Dashboard",
+      "description": "Platform analytics: active users, date success rate, deposit metrics",
+      "category": "analytics",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-112",
+      "name": "A/B Testing Framework",
+      "description": "Framework for testing UI variations and feature impacts on engagement",
+      "category": "analytics",
+      "priority": "P2",
+      "phase": "phase10_polish",
+      "effort": "L",
+      "passes": false
+    },
+    {
+      "id": "VH-113",
+      "name": "Geolocation-Based Discovery",
+      "description": "Show users within configurable distance radius with map view",
+      "category": "discovery",
+      "priority": "P1",
+      "phase": "phase4_browse",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-114",
+      "name": "Social Login Options",
+      "description": "Sign in with Apple, Google, and Facebook in addition to email",
+      "category": "auth",
+      "priority": "P1",
+      "phase": "phase2_auth",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-115",
+      "name": "Progressive Web App Support",
+      "description": "PWA support for installable mobile experience without app store",
+      "category": "mobile",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-116",
+      "name": "Deposit Refund Automation",
+      "description": "Automatic Stripe refund processing when both parties confirm date completion",
+      "category": "payments",
+      "priority": "P0",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-02-08",
+      "test_results": [
+        {
+          "test_name": "getConfirmedRequestsNeedingRefund query finds confirmed dates",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "releaseDepositOnCompletion function created",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Cron job /api/cron/release-deposits automatically processes refunds",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Manual deposit release endpoint /api/deposits/release",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Date confirmation endpoint tracks deposit release pending status",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Events tracked for deposit refund and manual release",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Build succeeded with deposit automation",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
+    },
+    {
+      "id": "VH-117",
+      "name": "Partial Deposit Forfeiture",
+      "description": "Configurable no-show penalty with partial deposit forfeiture rules",
+      "category": "payments",
+      "priority": "P1",
+      "phase": "phase5_requests",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-118",
+      "name": "Load Testing Suite",
+      "description": "Performance testing for concurrent users, chat, and payment processing",
+      "category": "testing",
+      "priority": "P1",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": false
+    },
+    {
+      "id": "VH-119",
+      "name": "GDPR Compliance & Data Export",
+      "description": "User data export, deletion requests, and GDPR consent management",
+      "category": "compliance",
+      "priority": "P0",
+      "phase": "phase10_polish",
+      "effort": "M",
+      "passes": true,
+      "completedAt": "2026-02-08",
+      "test_results": [
+        {
+          "test_name": "GET /api/users/data-export returns user data in JSON format",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "POST /api/users/delete initiates account deletion with 30-day retention",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "GET /api/users/delete returns deletion status",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "POST /api/users/data-correction updates personal information",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "/legal/gdpr page documents user rights",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "GDPR rights documented: access, rectification, erasure, restriction, portability, objection",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "CCPA rights documented for California users",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Data retention policy displayed with legal basis",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Build succeeded with GDPR compliance features",
+          "status": "pass",
+          "error_message": null
+        }
+      ]
+    },
+    {
+      "id": "VH-120",
+      "name": "Terms of Service & Privacy Policy",
+      "description": "Legal pages with acceptance tracking and version management",
+      "category": "compliance",
+      "priority": "P0",
+      "phase": "phase10_polish",
+      "effort": "S",
+      "passes": true,
+      "completedAt": "2026-02-08",
+      "test_results": [
+        {
+          "test_name": "/legal/terms page renders properly",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "/legal/privacy page renders properly",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Database schema supports ToS and privacy acceptance tracking",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "POST /api/legal/accept endpoint accepts and records document acceptance",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "GET /api/legal/accept endpoint returns acceptance status",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Acceptance events tracked with version numbers",
+          "status": "pass",
+          "error_message": null
+        },
+        {
+          "test_name": "Build succeeded with legal pages and API",
           "status": "pass",
           "error_message": null
         }

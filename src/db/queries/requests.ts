@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { dateRequests, profiles, users } from "@/db/schema";
-import { eq, and, or, desc, lt } from "drizzle-orm";
+import { eq, and, or, desc, lt, asc } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { CreateRequestInput } from "@/lib/validations/request";
 import { isEitherUserBlocked } from "./blocks";
@@ -188,4 +188,19 @@ export async function getExpiredRequests() {
       )
     )
     .orderBy(desc(dateRequests.expiresAt));
+}
+
+export async function getConfirmedRequestsNeedingRefund() {
+  return await db
+    .select()
+    .from(dateRequests)
+    .where(
+      and(
+        eq(dateRequests.approvalStatus, "approved"),
+        eq(dateRequests.inviteeConfirmed, true),
+        eq(dateRequests.requesterConfirmed, true),
+        eq(dateRequests.depositStatus, "held")
+      )
+    )
+    .orderBy(asc(dateRequests.dateConfirmedAt));
 }

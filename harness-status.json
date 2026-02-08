@@ -1,14 +1,16 @@
 {
   "projectId": "velvethold",
   "projectRoot": "/Users/isaiahdupree/Documents/Software/VelvetHold",
-  "lastUpdated": "2026-01-28T04:56:40.349Z",
+  "lastUpdated": "2026-02-08T12:23:58.408Z",
   "sessionType": "CODING",
-  "status": "completed",
+  "status": "running",
   "stats": {
-    "total": 93,
+    "total": 120,
     "passing": 93,
-    "pending": 0,
-    "percentComplete": "100.0"
+    "pending": 27,
+    "percentComplete": "77.5"
   },
-  "pid": 14051
+  "pid": 73816,
+  "currentSession": 7,
+  "model": "claude-haiku-4-5-20251001"
 }
