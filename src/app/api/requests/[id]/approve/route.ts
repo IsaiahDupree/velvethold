@@ -7,6 +7,7 @@ import {
   isRequestExpired,
 } from "@/db/queries/requests";
 import { sendRequestApprovedEmail } from "@/lib/email";
+import { sendPushNotification, notificationTemplates } from "@/lib/notifications";
 import { db } from "@/db";
 import { chats, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -91,6 +92,15 @@ export async function POST(
         requester.name,
         user.name || "Unknown"
       );
+
+      // Send push notification to requester
+      await sendPushNotification(
+        requester.id,
+        notificationTemplates.requestApproved(user.name || "Unknown")
+      ).catch((error) => {
+        console.error("Failed to send push notification:", error);
+        // Don't fail approval if notification fails
+      });
     }
 
     // Track request_approved event

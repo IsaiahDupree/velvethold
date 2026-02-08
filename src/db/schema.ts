@@ -507,3 +507,25 @@ export const segmentMembershipRelations = relations(segmentMembership, ({ one })
     references: [person.id],
   }),
 }));
+
+// In-app notifications table
+export const inAppNotification = pgTable("in_app_notification", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type: varchar("type", { length: 100 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  data: jsonb("data"), // Additional data for actions
+  read: boolean("read").notNull().default(false),
+  archived: boolean("archived").notNull().default(false),
+  actionUrl: varchar("action_url", { length: 500 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const inAppNotificationRelations = relations(inAppNotification, ({ one }) => ({
+  user: one(users, {
+    fields: [inAppNotification.userId],
+    references: [users.id],
+  }),
+}));

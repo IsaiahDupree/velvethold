@@ -7,7 +7,7 @@ export const createPaymentIntentSchema = z.object({
 
 export const processRefundSchema = z.object({
   requestId: z.string().uuid("Request ID must be a valid UUID"),
-  reason: z.enum(["declined", "cancelled", "no_show"]).optional(),
+  reason: z.enum(["declined", "cancelled", "date_cancelled", "no_show"]).optional(),
 });
 
 export type CreatePaymentIntentInput = z.infer<typeof createPaymentIntentSchema>;

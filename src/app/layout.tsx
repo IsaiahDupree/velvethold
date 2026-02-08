@@ -9,6 +9,7 @@ import { UserIdentitySync } from "@/components/analytics/user-identity-sync";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { AnalyticsInit } from "@/components/analytics/analytics-init";
 import { Toaster } from "@/components/ui/toaster";
+import { NotificationCenter } from "@/components/notifications/notification-center";
 import { auth } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -36,6 +37,7 @@ export default async function RootLayout({
             <PostHogIdentitySync />
             <UserIdentitySync />
             <AnalyticsInit />
+            <NotificationCenter />
             <QueryProvider>
               {children}
               <Toaster />

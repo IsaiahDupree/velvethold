@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/session";
 import { createRequest, listUserRequests, isRequestExpired } from "@/db/queries/requests";
 import { createRequestSchema, listRequestsSchema } from "@/lib/validations/request";
 import { sendRequestReceivedEmail } from "@/lib/email";
+import { sendPushNotification, notificationTemplates } from "@/lib/notifications";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -106,6 +107,18 @@ export async function POST(request: NextRequest) {
         invitee.name,
         user.name || "Unknown"
       );
+
+      // Send push notification to invitee
+      await sendPushNotification(
+        invitee.id,
+        notificationTemplates.requestReceived(
+          user.name || "Unknown",
+          validatedData.depositAmount
+        )
+      ).catch((error) => {
+        console.error("Failed to send push notification:", error);
+        // Don't fail request creation if notification fails
+      });
     }
 
     // Track request_created event

@@ -3,18 +3,23 @@ import { getCurrentUser } from "@/lib/session";
 import { stripe } from "@/lib/stripe";
 import { processRefundSchema } from "@/lib/validations/payment";
 import { db } from "@/db";
-import { dateRequests, payments } from "@/db/schema";
+import { dateRequests, payments, profiles } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { ZodError } from "zod";
+import { calculateRefundAmount, parsePolicyType } from "@/lib/deposit-forfeiture";
+import { trackAppEvent } from "@/lib/growth/event-service";
 
 /**
  * POST /api/payments/refund
- * Process a refund for a date request deposit
+ * Process a refund for a date request deposit with optional partial forfeiture
  *
  * This endpoint can be called when:
- * - An invitee declines a request
- * - A date is cancelled
- * - A no-show occurs
+ * - An invitee declines a request (full refund)
+ * - A date is cancelled (partial refund based on timing and policy)
+ * - A no-show occurs (no refund)
+ *
+ * Query params:
+ * - reason: "request_declined" (full) | "date_cancelled" (partial) | "no_show" (none)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -89,12 +94,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Process refund with Stripe
+    // Calculate refund amount based on reason and timing
+    let refundAmount = payment.amount; // Default: full refund
+    let forfeitureAmount = 0;
+    let refundPercentage = 100;
+    let reason = "request_declined";
+
+    if (validatedData.reason === "date_cancelled" && dateRequest.confirmedDateTime) {
+      // Get invitee's cancellation policy
+      const [inviteeProfile] = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.userId, dateRequest.inviteeId))
+        .limit(1);
+
+      if (inviteeProfile && inviteeProfile.cancellationPolicy) {
+        const policyType = parsePolicyType(inviteeProfile.cancellationPolicy);
+        const calculation = calculateRefundAmount(
+          payment.amount,
+          dateRequest.confirmedDateTime,
+          new Date(),
+          policyType
+        );
+
+        refundAmount = calculation.refundAmount;
+        forfeitureAmount = calculation.forfeitureAmount;
+        refundPercentage = calculation.refundPercentage;
+        reason = calculation.reason;
+      }
+    } else if (validatedData.reason === "no_show") {
+      // No refund for no-shows
+      refundAmount = 0;
+      forfeitureAmount = payment.amount;
+      refundPercentage = 0;
+      reason = "No refund for no-shows per cancellation policy";
+    }
+
+    // Process refund with Stripe (full payment first, then separate partial refund)
     const refund = await stripe.refunds.create({
       payment_intent: payment.stripePaymentIntentId,
+      amount: refundAmount,
       metadata: {
         requestId: validatedData.requestId,
-        reason: validatedData.reason || "request_declined",
+        reason: reason,
+        refundPercentage: refundPercentage.toString(),
+        forfeitureAmount: forfeitureAmount.toString(),
       },
     });
 
@@ -116,10 +160,31 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(dateRequests.id, validatedData.requestId));
 
+    // Track deposit forfeiture event
+    if (forfeitureAmount > 0) {
+      await trackAppEvent({
+        eventName: "deposit_forfeited",
+        userId: dateRequest.requesterId,
+        properties: {
+          requestId: validatedData.requestId,
+          depositAmount: payment.amount,
+          refundAmount: refundAmount,
+          forfeitureAmount: forfeitureAmount,
+          refundPercentage: refundPercentage,
+          reason: reason,
+        },
+      }).catch((error) => {
+        console.error("Failed to track forfeiture event:", error);
+      });
+    }
+
     return NextResponse.json({
       message: "Refund processed successfully",
       refundId: refund.id,
-      amount: refund.amount,
+      refundAmount: refundAmount,
+      forfeitureAmount: forfeitureAmount,
+      refundPercentage: refundPercentage,
+      reason: reason,
       status: refund.status,
     });
   } catch (error) {

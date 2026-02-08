@@ -26,6 +26,7 @@ export const PUSHER_EVENTS = {
   NEW_MESSAGE: "new-message",
   TYPING_START: "typing-start",
   TYPING_STOP: "typing-stop",
+  NOTIFICATION: "notification",
 } as const;
 
 // Helper function to get chat channel name
