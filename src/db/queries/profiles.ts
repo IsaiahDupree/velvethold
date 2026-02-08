@@ -15,6 +15,8 @@ export interface CreateProfileInput {
   depositAmount?: number;
   cancellationPolicy?: string;
   availabilityVisibility?: "public" | "verified" | "paid" | "approved";
+  interestTags?: string[];
+  prompts?: Record<string, any>[];
 }
 
 export interface UpdateProfileInput {
@@ -29,6 +31,8 @@ export interface UpdateProfileInput {
   depositAmount?: number;
   cancellationPolicy?: string;
   availabilityVisibility?: "public" | "verified" | "paid" | "approved";
+  interestTags?: string[];
+  prompts?: Record<string, any>[];
 }
 
 export interface SearchProfilesInput {
@@ -61,6 +65,8 @@ export async function createProfile(input: CreateProfileInput) {
       depositAmount: input.depositAmount,
       cancellationPolicy: input.cancellationPolicy,
       availabilityVisibility: input.availabilityVisibility,
+      interestTags: input.interestTags ? JSON.stringify(input.interestTags) : null,
+      prompts: input.prompts ? JSON.stringify(input.prompts) : null,
     })
     .returning();
 
@@ -310,4 +316,173 @@ export async function getProfilesByAgeRange(
     .orderBy(profiles.createdAt);
 
   return results;
+}
+
+/**
+ * Get profiles with matching interests
+ */
+export async function getProfilesByInterests(
+  interests: string[],
+  limit: number = 50,
+  offset: number = 0
+) {
+  if (interests.length === 0) return [];
+
+  const results = await db
+    .select()
+    .from(profiles)
+    .where(sql`${profiles.interestTags} @> ${JSON.stringify(interests)}::jsonb`)
+    .limit(limit)
+    .offset(offset)
+    .orderBy(profiles.createdAt);
+
+  return results;
+}
+
+/**
+ * Add interest tags to a profile
+ */
+export async function addInterestTagsToProfile(profileId: string, tags: string[]) {
+  const profile = await getProfileById(profileId);
+  if (!profile) return null;
+
+  const currentTags = Array.isArray(profile.interestTags) ? profile.interestTags : [];
+  const newTags = Array.from(new Set([...currentTags, ...tags])).slice(0, 20); // Max 20
+
+  const [updated] = await db
+    .update(profiles)
+    .set({
+      interestTags: JSON.stringify(newTags),
+      updatedAt: new Date(),
+    })
+    .where(eq(profiles.id, profileId))
+    .returning();
+
+  return updated;
+}
+
+/**
+ * Remove interest tags from a profile
+ */
+export async function removeInterestTagsFromProfile(profileId: string, tags: string[]) {
+  const profile = await getProfileById(profileId);
+  if (!profile) return null;
+
+  const currentTags = Array.isArray(profile.interestTags) ? profile.interestTags : [];
+  const tagsToRemove = new Set(tags);
+  const newTags = currentTags.filter(tag => !tagsToRemove.has(tag));
+
+  const [updated] = await db
+    .update(profiles)
+    .set({
+      interestTags: JSON.stringify(newTags),
+      updatedAt: new Date(),
+    })
+    .where(eq(profiles.id, profileId))
+    .returning();
+
+  return updated;
+}
+
+/**
+ * Set interest tags for a profile (replaces all)
+ */
+export async function setInterestTagsForProfile(profileId: string, tags: string[]) {
+  const validTags = tags.slice(0, 20); // Max 20
+
+  const [updated] = await db
+    .update(profiles)
+    .set({
+      interestTags: JSON.stringify(validTags),
+      updatedAt: new Date(),
+    })
+    .where(eq(profiles.id, profileId))
+    .returning();
+
+  return updated;
+}
+
+// ===========================
+// PROFILE PROMPTS QUERIES
+// ===========================
+
+/**
+ * Set profile prompts (answers to icebreaker questions)
+ */
+export async function setProfilePrompts(
+  profileId: string,
+  prompts: Record<string, any>[]
+) {
+  const validPrompts = prompts.slice(0, 5); // Max 5 prompts
+
+  const [updated] = await db
+    .update(profiles)
+    .set({
+      prompts: JSON.stringify(validPrompts),
+      updatedAt: new Date(),
+    })
+    .where(eq(profiles.id, profileId))
+    .returning();
+
+  return updated;
+}
+
+/**
+ * Add a prompt answer to a profile
+ */
+export async function addPromptToProfile(
+  profileId: string,
+  promptId: string,
+  answer: string
+) {
+  const profile = await getProfileById(profileId);
+  if (!profile) return null;
+
+  const currentPrompts = Array.isArray(profile.prompts) ? profile.prompts : [];
+
+  // Check if prompt already exists
+  const existingIndex = currentPrompts.findIndex(
+    (p: any) => p.promptId === promptId
+  );
+
+  let newPrompts: Record<string, any>[];
+  if (existingIndex >= 0) {
+    // Update existing prompt
+    newPrompts = [...currentPrompts];
+    newPrompts[existingIndex] = {
+      promptId,
+      answer,
+      answeredAt: new Date().toISOString(),
+    };
+  } else {
+    // Add new prompt
+    newPrompts = [
+      ...currentPrompts,
+      {
+        promptId,
+        answer,
+        answeredAt: new Date().toISOString(),
+      },
+    ].slice(0, 5); // Max 5 prompts
+  }
+
+  return await setProfilePrompts(profileId, newPrompts);
+}
+
+/**
+ * Remove a prompt answer from a profile
+ */
+export async function removePromptFromProfile(
+  profileId: string,
+  promptId: string
+) {
+  const profile = await getProfileById(profileId);
+  if (!profile) return null;
+
+  const currentPrompts = Array.isArray(profile.prompts) ? profile.prompts : [];
+  const newPrompts = currentPrompts.filter(
+    (p: any) => p.promptId !== promptId
+  );
+
+  return await setProfilePrompts(profileId, newPrompts);
 }

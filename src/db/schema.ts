@@ -64,6 +64,8 @@ export const profiles = pgTable("profiles", {
   depositAmount: integer("deposit_amount"),
   cancellationPolicy: text("cancellation_policy"),
   availabilityVisibility: visibilityLevelEnum("availability_visibility").default("verified"),
+  interestTags: jsonb("interest_tags"), // Array of interest tags for matching and discovery
+  prompts: jsonb("prompts"), // Array of prompt answers for profile showcase
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
